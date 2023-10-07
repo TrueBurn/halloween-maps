@@ -8,6 +8,7 @@ var map = L.map('map').fitWorld();
         // popupAnchor:  [-3, -76]
     }
  });
+ 
 
 var houseIcon = new PumpkinIcon({iconUrl: 'assets/pumpkin.png'});
 
