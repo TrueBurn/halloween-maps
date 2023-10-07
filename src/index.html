@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Uitzicht Halloween - 2023</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <script src="https://kit.fontawesome.com/94f8a7fb13.js" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="styles.css">
+    <script src="main.js" defer></script>
+</head>
+
+<body class="h-screen">
+    <nav class="bg-gray-300 shadow-lg h-12 sticky top-0">
+        <div class="max-w-6xl mx-auto px-4 py-2">
+            <div class="flex justify-between">
+                <h1 class="text-xl font-bloody font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-950 to-red-700 drop-shadow-lg">
+                    Uitzicht Halloween - 2023
+                </h1>
+                <!-- Mobile menu button -->
+                <div class="flex items-end">
+                    <button type="button" onclick="window.location.reload();" class="outline-none mobile-menu-button" title="Refresh">
+                        <i class="fa-sharp fa-solid fa-rotate font-bold text-red-700 drop-shadow-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main class="h-full">
+        <div id='map' class="h-full"></div>
+    </main>
+</body>
+
+</html>
