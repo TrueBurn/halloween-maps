@@ -1,4 +1,16 @@
-var map = L.map('map').fitWorld();
+const uitzichtCenter = [-33.819689, 18.688568];
+
+var map = L.map('map', {
+    center: uitzichtCenter,
+    zoom: 16
+});
+
+var roads = L.gridLayer
+	.googleMutant({
+		type: "roadmap", // valid values are 'roadmap', 'satellite', 'terrain' and 'hybrid'
+	})
+	.addTo(map);
+
 
  var PumpkinIcon = L.Icon.extend({
     options: {
@@ -13,7 +25,7 @@ var map = L.map('map').fitWorld();
 var houseIcon = new PumpkinIcon({iconUrl: 'assets/pumpkin.png'});
 
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
+    maxZoom: 20,
     attribution: '© OpenStreetMap'
 }).addTo(map);
 
@@ -26,8 +38,10 @@ map.locate({setView: true, maxZoom: 16});
 function onLocationFound(e) {
     var radius = e.accuracy;
 
-    L.marker(e.latlng).addTo(map)
-         .bindPopup("You are within " + radius + " meters from this point").openPopup();
+    L.marker(e.latlng)
+        .addTo(map)
+        .bindPopup("You are within " + radius + " meters from this point")
+        .openPopup();
 
     // L.circle(e.latlng, radius).addTo(map);
 }
@@ -36,6 +50,7 @@ map.on('locationfound', onLocationFound);
 
 function onLocationError(e) {
     alert(e.message);
+    map.setView(uitzichtCenter, 16);
 }
 
 map.on('locationerror', onLocationError);
