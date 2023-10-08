@@ -25,7 +25,7 @@ var roads = L.gridLayer
 var houseIcon = new PumpkinIcon({iconUrl: 'assets/pumpkin.png'});
 
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 20,
+    maxZoom: 15,
     attribution: '© OpenStreetMap'
 }).addTo(map);
 
