@@ -1,5 +1,17 @@
 {
   "devDependencies": {
     "tailwindcss": "^3.3.3"
-  }
+  },
+  "name": "halloween-maps",
+  "description": "Live maps for annual halloween route",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tailwindcss build src/styles-input.css -o src/styles.css",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "main": "src\\index.js",
+  "dependencies": {
+  },
+  "author": "",
+  "license": "ISC"
 }

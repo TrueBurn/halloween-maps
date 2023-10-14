@@ -1,4 +1,19 @@
-const uitzichtCenter = [-33.819689, 18.688568];
+const { createClient } = supabase
+
+const _supabaseClient = createClient(config.supabase.url, config.supabase.anon_token)
+
+let getLocations = async () => {
+    const { data, error } = await _supabaseClient
+        .from('location')
+        .select('*')
+    if (error) console.log('error', error)
+    loadHouses(data)
+    console.log('data', data)
+}
+
+console.log('Supabase Instance: ', _supabaseClient)
+
+const uitzichtCenter = config.default.location;
 
 var map = L.map('map', {
     center: uitzichtCenter,
@@ -29,10 +44,6 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap'
 }).addTo(map);
 
-fetch('./data/houses.json')
-    .then((response) => response.json())
-    .then((json) => loadHouses(json));
-
 map.locate({setView: true, maxZoom: 16});
 
 function onLocationFound(e) {
@@ -55,8 +66,16 @@ function onLocationError(e) {
 
 map.on('locationerror', onLocationError);
 
-var loadHouses = function(houses) {
-    houses.forEach(house => {
-        L.marker([house.lat, house.long], {icon: houseIcon}).addTo(map).bindPopup(house.address);
+getLocations()
+
+// fetch('./data/houses.json')
+//     .then((response) => response.json())
+//     .then((json) => loadHouses(json));
+
+function loadHouses(locations) {
+    locations.forEach(location => {
+        L.marker([location.latitude, location.longitude], {icon: houseIcon})
+            .addTo(map)
+            .bindPopup(location.address);
     });
 }
