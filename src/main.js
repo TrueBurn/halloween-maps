@@ -8,7 +8,7 @@ let getLocations = async () => {
         .select('*')
     if (error) console.log('error', error)
     loadHouses(data)
-    console.log('data', data)
+    // console.log('data', data)
 }
 
 console.log('Supabase Instance: ', _supabaseClient)
@@ -20,9 +20,14 @@ var map = L.map('map', {
     zoom: 16
 });
 
+console.log('map', map)
+
+// map.setOptions({ styles: config.gMaps.styles.default })
+
 var roads = L.gridLayer
 	.googleMutant({
 		type: "roadmap", // valid values are 'roadmap', 'satellite', 'terrain' and 'hybrid'
+        styles: config.gMaps.styles.hide,
 	})
 	.addTo(map);
 
