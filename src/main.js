@@ -24,8 +24,6 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "© OpenStreetMap",
 }).addTo(map);
 
-map.locate({ setView: false, maxZoom: 16 });
-
 function onLocationFound(e) {
   var radius = e.accuracy;
 
@@ -37,14 +35,15 @@ function onLocationFound(e) {
   // L.circle(e.latlng, radius).addTo(map);
 }
 
-map.on("locationfound", onLocationFound);
-
 function onLocationError(e) {
-  alert(e.message);
-  map.setView(config.default.location, 16);
+  console.error(e.message);
+  // map.setView(config.default.location, 16);
 }
 
+map.on("locationfound", onLocationFound);
 map.on("locationerror", onLocationError);
+
+map.locate({ setView: false, watch: true, maxZoom: 16 });
 
 let participatingIcon = L.Icon.extend({
   options: {
