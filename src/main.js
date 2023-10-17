@@ -6,6 +6,7 @@ const _supabaseClient = createClient(
 );
 
 let arrayOfLatLngs = [];
+let userMarker;
 
 let map = L.map("map", {
   center: config.default.location,
@@ -25,11 +26,21 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 
 function onLocationFound(e) {
-  var radius = e.accuracy;
+  let radius = e.accuracy;
 
-  L.marker(e.latlng)
-    .addTo(map)
-    .bindPopup("You are within " + radius + " meters from this point");
+  if (userMarker) {
+    userMarker.bindPopup("You are within " + radius + " meters from this point")
+    userMarker.setLatLng(e.latlng)
+  } else {
+    userMarker = new L.marker(e.latlng)
+    userMarker
+      .addTo(map)
+      .bindPopup("You are within " + radius + " meters from this point");
+  }
+
+  // L.marker(e.latlng)
+  //   .addTo(map)
+  //   .bindPopup("You are within " + radius + " meters from this point");
   // .openPopup();
 
   // L.circle(e.latlng, radius).addTo(map);
@@ -43,7 +54,7 @@ function onLocationError(e) {
 map.on("locationfound", onLocationFound);
 map.on("locationerror", onLocationError);
 
-map.locate({ setView: false, watch: true, maxZoom: 16 });
+map.locate({ watch: true, enableHighAccuracy: true });
 
 let participatingIcon = L.Icon.extend({
   options: {
