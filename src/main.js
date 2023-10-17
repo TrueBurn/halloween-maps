@@ -84,7 +84,7 @@ let getLocations = async () => {
     .eq("is_participating", true);
   if (error) console.log("error", error);
   loadHouses(data);
-  console.log('data', data)
+  // console.log('data', data)
 };
 
 getLocations();
