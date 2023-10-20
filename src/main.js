@@ -72,8 +72,15 @@ let houseWithNoCandyIcon = new participatingIcon({
   iconUrl: "assets/house_no_candy.png",
   opacity: 0.75
 });
+let houseStartIcon = new participatingIcon({
+  iconUrl: "assets/house_start.png"
+});
 let tableIcon = new participatingIcon({ 
   iconUrl: "assets/table.png",
+  iconSize: [40, 40]
+});
+let tableStartIcon = new participatingIcon({ 
+  iconUrl: "assets/table_start.png",
   iconSize: [40, 40]
 });
 let tableWithNoCandyIcon = new participatingIcon({
@@ -118,10 +125,23 @@ function getIconForLocation(location) {
   let icon = houseIcon;
   switch (location.location_type) {
     case "House":
-      icon = location.has_candy ? houseIcon : houseWithNoCandyIcon;
+      if (location.is_start) {
+        icon = houseStartIcon;
+      } else {
+        icon = location.has_candy 
+          ? houseIcon 
+          : houseWithNoCandyIcon;
+      }
       break;
     case "Table":
-      icon = location.has_candy ? tableIcon : tableWithNoCandyIcon;
+      if (location.is_start) {
+        icon = tableStartIcon;
+      } else {
+        icon = location.has_candy 
+          ? tableIcon 
+          : tableWithNoCandyIcon;
+      }
+      
       break;
     case "Parking":
       icon = parkingIcon;
@@ -137,6 +157,9 @@ function generatePopupForLocation(location) {
   let locationPopup = "";
   locationPopup += `<strong>Type: </strong>${location.location_type}`;
   locationPopup += `<br /><strong>Address: </strong>${location.address}`;
+  if (location.is_start) {
+    locationPopup += `<br /><strong>Starting point for route: </strong>${location.route}`;
+  }
   return locationPopup;
 }
 
@@ -144,7 +167,7 @@ function getZIndexForLocation(location) {
   let zIndex = 0;
   switch (location.location_type) {
     case "House":
-      zIndex = 10;
+      zIndex = 50;
       break;
     case "Table":
       zIndex = 8;
@@ -155,10 +178,6 @@ function getZIndexForLocation(location) {
     case "Refreshments":
       zIndex = 6;
       break;
-
-  }
-  if (location.location_type === "House") {
-    zIndex = 10;
   }
   return zIndex;
 }
