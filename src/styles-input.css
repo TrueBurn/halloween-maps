@@ -10,6 +10,26 @@
   }
 }
 
+@layer components {
+  .text-outline-glow {
+    text-shadow: 
+      -1px -1px 0 theme('colors.ghost-white'),
+      1px -1px 0 theme('colors.ghost-white'),
+      -1px 1px 0 theme('colors.ghost-white'),
+      1px 1px 0 theme('colors.ghost-white'),
+      0 0 8px theme('colors.ghost-white');
+  }
+
+  .dark .text-outline-glow {
+    text-shadow: 
+      -1px -1px 0 theme('colors.witch-black'),
+      1px -1px 0 theme('colors.witch-black'),
+      -1px 1px 0 theme('colors.witch-black'),
+      1px 1px 0 theme('colors.witch-black'),
+      0 0 8px theme('colors.witch-black');
+  }
+}
+
 @layer utilities {
   .text-outline-glow {
     text-shadow: 

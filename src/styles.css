@@ -562,6 +562,24 @@ body{
   --tw-contain-style:  ;
 }
 
+.text-outline-glow {
+  text-shadow: 
+      -1px -1px 0 #F8F8FF,
+      1px -1px 0 #F8F8FF,
+      -1px 1px 0 #F8F8FF,
+      1px 1px 0 #F8F8FF,
+      0 0 8px #F8F8FF;
+}
+
+.dark .text-outline-glow {
+  text-shadow: 
+      -1px -1px 0 #1C1C1C,
+      1px -1px 0 #1C1C1C,
+      -1px 1px 0 #1C1C1C,
+      1px 1px 0 #1C1C1C,
+      0 0 8px #1C1C1C;
+}
+
 .relative{
   position: relative;
 }

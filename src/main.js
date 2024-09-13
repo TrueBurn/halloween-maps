@@ -16,8 +16,8 @@ const lightTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.p
   attribution: '© OpenStreetMap contributors'
 });
 
-const darkTiles = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-  attribution: '© Stadia Maps, © OpenMapTiles, © OpenStreetMap contributors'
+const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap contributors, © CARTO'
 });
 
 // Set initial tile layer based on current theme
