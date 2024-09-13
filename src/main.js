@@ -8,22 +8,24 @@ const _supabaseClient = createClient(
 let arrayOfLatLngs = [];
 let userMarker;
 
-let map = L.map("map", {
-  center: config.default.location,
-  zoom: 16,
+// Initialize the map
+const map = L.map('map').setView([51.505, -0.09], 13);
+
+// Create both light and dark tile layers
+const lightTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors'
 });
 
-let roads = L.gridLayer
-  .googleMutant({
-    type: "roadmap", // valid values are 'roadmap', 'satellite', 'terrain' and 'hybrid'
-    styles: config.gMaps.styles.hide,
-  })
-  .addTo(map);
+const darkTiles = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+  attribution: '© Stadia Maps, © OpenMapTiles, © OpenStreetMap contributors'
+});
 
-L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  maxZoom: 15,
-  attribution: "© OpenStreetMap",
-}).addTo(map);
+// Set initial tile layer based on current theme
+if (document.documentElement.classList.contains('dark')) {
+  darkTiles.addTo(map);
+} else {
+  lightTiles.addTo(map);
+}
 
 function onLocationFound(e) {
   let radius = e.accuracy;
@@ -181,3 +183,44 @@ function getZIndexForLocation(location) {
   }
   return zIndex;
 }
+
+// Add theme toggle listener
+const themeToggle = document.getElementById('darkModeToggle');
+const themeIcon = themeToggle.querySelector('i');
+
+function updateThemeIcon() {
+  if (document.documentElement.classList.contains('dark')) {
+    themeIcon.classList.remove('fa-moon');
+    themeIcon.classList.add('fa-sun');
+  } else {
+    themeIcon.classList.remove('fa-sun');
+    themeIcon.classList.add('fa-moon');
+  }
+}
+
+function toggleTheme() {
+  document.documentElement.classList.toggle('dark');
+  localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+  
+  if (document.documentElement.classList.contains('dark')) {
+    map.removeLayer(lightTiles);
+    darkTiles.addTo(map);
+  } else {
+    map.removeLayer(darkTiles);
+    lightTiles.addTo(map);
+  }
+  
+  updateThemeIcon();
+}
+
+// Initial icon update
+updateThemeIcon();
+
+// Set initial map tiles based on current theme
+if (document.documentElement.classList.contains('dark')) {
+  darkTiles.addTo(map);
+} else {
+  lightTiles.addTo(map);
+}
+
+themeToggle.addEventListener('click', toggleTheme);

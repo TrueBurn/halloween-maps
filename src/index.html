@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta
@@ -7,12 +7,12 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     
-    <title>Uitzicht Halloween - 2023</title>
+    <title>Uitzicht Halloween - 2024</title>
     <link rel="icon" href="assets/logo.png" type="image/png" />
 
     <meta property="description" content="Explore our interactive Halloween event map! Find participating houses, tables, and refreshment stations. Join the spooky fun in our neighborhood!" />
     <meta property="og:image" content="https://uitzicht-halloween.trueburn.co.za/assets/preview.jpg">
-    <meta property="og:title" content="Uitzicht Halloween - 2023">
+    <meta property="og:title" content="Uitzicht Halloween - 2024">
     <meta property="og:description" content="Explore our interactive Halloween event map! Find participating houses, tables, and refreshment stations. Join the spooky fun in our neighborhood!" />
     <meta property="og:url" content="https://uitzicht-halloween.trueburn.co.za/">
 
@@ -57,26 +57,32 @@
     <script defer src="/_vercel/insights/script.js"></script>
   </head>
 
-  <body class="h-screen">
-    <nav class="bg-gray-300 shadow-lg h-12 sticky top-0">
+  <body class="h-screen bg-ghost-white dark:bg-witch-black text-witch-black dark:text-ghost-white">
+    <nav class="bg-pumpkin-orange dark:bg-blood-red shadow-lg h-12 sticky top-0">
       <div class="max-w-6xl mx-auto px-4 py-2">
-        <div class="flex justify-between">
+        <div class="flex justify-between items-center">
           <h1
-            class="text-xl font-bloody font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-950 to-red-700 drop-shadow-lg"
+            class="text-xl font-bloody font-bold text-blood-red dark:text-pumpkin-orange relative text-outline-glow"
           >
-            Uitzicht Halloween - 2023
+            Uitzicht Halloween - 2024
           </h1>
-          <!-- Mobile menu button -->
-          <div class="flex items-end">
+          <div class="flex items-center space-x-4">
             <button
               type="button"
               onclick="window.location.reload();"
-              class="outline-none mobile-menu-button"
+              class="outline-none hover:text-halloween-orange dark:hover:text-ghost-white transition-colors duration-200"
               title="Refresh"
             >
               <i
-                class="fa-sharp fa-solid fa-rotate font-bold text-red-700 drop-shadow-lg"
+                class="fa-sharp fa-solid fa-rotate font-bold"
               ></i>
+            </button>
+            <button
+              id="darkModeToggle"
+              class="outline-none hover:text-halloween-purple dark:hover:text-ghost-white transition-colors duration-200"
+              title="Toggle Dark Mode"
+            >
+              <i class="fa-solid fa-moon"></i>
             </button>
           </div>
         </div>
@@ -85,5 +91,6 @@
     <main class="h-full">
       <div id="map" class="h-full"></div>
     </main>
+
   </body>
 </html>

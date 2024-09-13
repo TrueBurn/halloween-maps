@@ -4,3 +4,20 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    @apply transition-colors duration-200;
+  }
+}
+
+@layer utilities {
+  .text-outline-glow {
+    text-shadow: 
+      -1px -1px 0 #FFF, 
+      1px -1px 0 #FFF, 
+      -1px 1px 0 #FFF, 
+      1px 1px 0 #FFF, 
+      0 0 8px rgba(255,255,255,0.5);
+  }
+}
+

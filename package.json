@@ -6,11 +6,12 @@
   "description": "Live maps for annual halloween route",
   "version": "1.0.0",
   "scripts": {
-    "build": "tailwindcss build src/styles-input.css -o src/styles.css",
+    "build": "npx tailwindcss build src/styles-input.css -o src/styles.css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "main": "src\\index.js",
   "dependencies": {
+    "halloween-maps": "file:"
   },
   "author": "",
   "license": "ISC"
