@@ -35,6 +35,16 @@
             <button onclick="verifyOTP()" class="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Verify OTP</button>
         </div>
 
+        <div id="waitingForMagicLink" class="space-y-4" style="display: none;">
+            <h2 class="text-xl font-semibold text-witch-black dark:text-ghost-white">Check Your Email</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                A magic link has been sent to your email. Please check your inbox and click the link to log in.
+            </p>
+            <div class="flex justify-center">
+                <i class="fas fa-spinner fa-spin text-4xl text-indigo-500"></i>
+            </div>
+        </div>
+
         <div id="configForm" class="space-y-4" style="display: none;">
             <h2 class="text-xl font-semibold text-witch-black dark:text-ghost-white">Configure Location</h2>
             <div class="flex items-center">

@@ -111,34 +111,54 @@ async function verifyLastFourDigits() {
       });
 
       if (phoneError) {
-        // If phone OTP fails, fall back to email OTP
+        // If phone OTP fails, fall back to email magic link
         if (data.email) {
           const { error: emailError } = await _supabaseClient.auth.signInWithOtp({
             email: data.email
           });
           if (emailError) {
             if (emailError.message.includes('rate limit')) {
-              throw new Error("Too many OTP requests. Please try again later.");
+              throw new Error("Too many login attempts. Please try again later.");
             }
             throw emailError;
           }
-          showSuccess("OTP sent to your email. Please check and enter the code.");
+          showSuccess("A magic link has been sent to your email. Please check your inbox and click the link to log in.");
+          document.getElementById('loginForm').style.display = 'none';
+          document.getElementById('waitingForMagicLink').style.display = 'block';
+          startMagicLinkCheck();
         } else {
           throw new Error("Unable to send OTP via phone or email.");
         }
       } else {
         showSuccess("OTP sent to your phone. Please enter the code.");
+        lastOTPRequestTime = now;
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('otpForm').style.display = 'block';
       }
-
-      lastOTPRequestTime = now;
-      document.getElementById('loginForm').style.display = 'none';
-      document.getElementById('otpForm').style.display = 'block';
     } else {
       showError("Invalid last 4 digits. Please try again.");
     }
   } catch (error) {
     showError(error.message);
   }
+}
+
+function startMagicLinkCheck() {
+  const checkInterval = setInterval(async () => {
+    const { data: { user } } = await _supabaseClient.auth.getUser();
+    if (user) {
+      clearInterval(checkInterval);
+      showConfigForm();
+    }
+  }, 2000); // Check every 2 seconds
+
+  // Stop checking after 5 minutes (300000 ms)
+  setTimeout(() => {
+    clearInterval(checkInterval);
+    document.getElementById('waitingForMagicLink').style.display = 'none';
+    document.getElementById('loginForm').style.display = 'block';
+    showError("Magic link expired. Please try again.");
+  }, 300000);
 }
 
 async function verifyOTP() {
@@ -271,6 +291,9 @@ function showError(message) {
   errorElement.classList.remove('text-green-500', 'bg-green-100');
   errorElement.classList.add('text-red-500', 'bg-red-100', 'p-2', 'rounded');
   errorElement.style.display = 'block';
+  setTimeout(() => {
+    errorElement.style.display = 'none';
+  }, 5000);
 }
 
 function showSuccess(message) {
@@ -279,6 +302,9 @@ function showSuccess(message) {
   errorElement.classList.remove('text-red-500', 'bg-red-100');
   errorElement.classList.add('text-green-500', 'bg-green-100', 'p-2', 'rounded');
   errorElement.style.display = 'block';
+  setTimeout(() => {
+    errorElement.style.display = 'none';
+  }, 5000);
 }
 
 function clearMessage() {
