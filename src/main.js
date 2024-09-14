@@ -200,9 +200,11 @@ function updateThemeIcon() {
 
 function toggleTheme() {
   document.documentElement.classList.toggle('dark');
-  localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+  const isDark = document.documentElement.classList.contains('dark');
+  localStorage.theme = isDark ? 'dark' : 'light';
+  setCookie('theme', isDark ? 'dark' : 'light', 365); // Store preference for 1 year
   
-  if (document.documentElement.classList.contains('dark')) {
+  if (isDark) {
     map.removeLayer(lightTiles);
     darkTiles.addTo(map);
   } else {
@@ -213,14 +215,39 @@ function toggleTheme() {
   updateThemeIcon();
 }
 
-// Initial icon update
-updateThemeIcon();
+// Add these functions at the beginning of the file
+function setCookie(name, value, days) {
+  let expires = "";
+  if (days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    expires = "; expires=" + date.toUTCString();
+  }
+  document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+}
 
-// Set initial map tiles based on current theme
-if (document.documentElement.classList.contains('dark')) {
+function getCookie(name) {
+  const nameEQ = name + "=";
+  const ca = document.cookie.split(';');
+  for(let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+  }
+  return null;
+}
+
+// Modify the initial theme setup
+const savedTheme = getCookie('theme') || localStorage.theme;
+if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+  document.documentElement.classList.add('dark');
   darkTiles.addTo(map);
 } else {
+  document.documentElement.classList.remove('dark');
   lightTiles.addTo(map);
 }
 
-themeToggle.addEventListener('click', toggleTheme);
+// Initial icon update
+updateThemeIcon();
+
+// ... rest of the existing code ...
