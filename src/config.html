@@ -37,7 +37,12 @@
                 <input type="checkbox" id="hasCandy" class="rounded text-blue-600 focus:ring-blue-500 h-4 w-4 mr-2" autocomplete="off">
                 <label for="hasCandy" class="text-sm font-medium text-gray-700">Has Candy</label>
             </div>
-            <button onclick="updateHasCandy()" class="w-full bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Update</button>
+            <button id="updateButton" onclick="updateHasCandy()" class="w-full bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Update
+            </button>
+            <button id="logoutButton" onclick="logout()" class="w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Logout
+            </button>
         </div>
 
         <div id="errorMessage" class="mt-4 text-sm flex items-center justify-between" style="display: none;">

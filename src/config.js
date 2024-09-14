@@ -145,20 +145,76 @@ async function showConfigForm() {
 }
 
 async function updateHasCandy() {
-  clearMessage(); // Clear any existing messages
+  clearMessage();
   const hasCandy = document.getElementById('hasCandy').checked;
+  const updateButton = document.getElementById('updateButton');
   
   try {
-    const { error } = await _supabaseClient
+    updateButton.disabled = true;
+    updateButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+
+    const { data: { user } } = await _supabaseClient.auth.getUser();
+    if (!user) {
+      throw new Error("User is not authenticated");
+    }
+
+    // Fetch the location data to get the phone number or email
+    const { data: locationData, error: locationError } = await _supabaseClient
+      .from('location')
+      .select('phone_number, email')
+      .eq('id', locationId)
+      .single();
+
+    if (locationError) throw locationError;
+
+    // Determine which identifier to use (phone or email)
+    const identifier = user.phone || user.email;
+    const locationIdentifier = locationData.phone_number || locationData.email;
+
+    if (identifier !== locationIdentifier) {
+      throw new Error("User does not have permission to update this location");
+    }
+
+    const { data, error } = await _supabaseClient
       .from('location')
       .update({ has_candy: hasCandy })
-      .eq('id', locationId);
+      .eq('id', locationId)
+      .eq(user.phone ? 'phone_number' : 'email', identifier);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Update error:', error);
+      throw error;
+    }
 
     showSuccess("Location updated successfully!");
   } catch (error) {
-    showError(error.message);
+    showError(`Error updating location: ${error.message}`);
+  } finally {
+    updateButton.disabled = false;
+    updateButton.innerHTML = 'Update';
+  }
+}
+
+async function logout() {
+  const logoutButton = document.getElementById('logoutButton');
+  
+  try {
+    logoutButton.disabled = true;
+    logoutButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging out...';
+
+    const { error } = await _supabaseClient.auth.signOut();
+    if (error) throw error;
+
+    showSuccess("Logged out successfully!");
+    setTimeout(() => {
+      document.getElementById('configForm').style.display = 'none';
+      document.getElementById('loginForm').style.display = 'block';
+    }, 2000);
+  } catch (error) {
+    showError(`Error logging out: ${error.message}`);
+  } finally {
+    logoutButton.disabled = false;
+    logoutButton.innerHTML = 'Logout';
   }
 }
 
