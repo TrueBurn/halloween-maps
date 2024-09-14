@@ -282,3 +282,20 @@ function getCookie(name) {
   }
   return null;
 }
+
+function toggleTheme() {
+  document.documentElement.classList.toggle('dark');
+  const isDark = document.documentElement.classList.contains('dark');
+  localStorage.theme = isDark ? 'dark' : 'light';
+  setCookie('theme', isDark ? 'dark' : 'light', 365); // Store preference for 1 year
+}
+
+function setCookie(name, value, days) {
+  let expires = "";
+  if (days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    expires = "; expires=" + date.toUTCString();
+  }
+  document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+}
