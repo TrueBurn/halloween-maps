@@ -59,3 +59,34 @@ Route
 
 USER-DEFINED	route
 
+*************************
+
+Use options above to edit
+
+
+alter policy "Users can update their own location's has_candy status"
+on "public"."location"
+to public
+using (
+  (auth.uid() IN ( SELECT auth.uid() AS uid
+   FROM auth.users
+  WHERE (users.phone = (location.phone_number)::text)))
+with check (
+  (auth.uid() IN ( SELECT auth.uid() AS uid
+   FROM auth.users
+  WHERE (users.phone = (location.phone_number)::text)))
+);
+
+
+alter policy "Users can update their own location's has_candy status - email"
+on "public"."location"
+to public
+using (
+  (auth.uid() IN ( SELECT auth.uid() AS uid
+   FROM auth.users
+  WHERE ((users.email)::text = (location.email)::text)))
+with check (
+  (auth.uid() IN ( SELECT auth.uid() AS uid
+   FROM auth.users
+  WHERE ((users.email)::text = (location.email)::text)))
+);
