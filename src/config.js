@@ -74,13 +74,23 @@ function formatToE164(phoneNumber) {
   return '+' + digits;
 }
 
+const OTP_COOLDOWN = 60000; // 1 minute in milliseconds
+let lastOTPRequestTime = 0;
+
 async function verifyLastFourDigits() {
-  clearMessage(); // Clear any existing messages
+  clearMessage();
   const lastFourInput = document.getElementById('lastFourDigits');
   const lastFour = lastFourInput.value;
 
   if (!/^\d{4}$/.test(lastFour)) {
     showError("Please enter exactly 4 digits.");
+    return;
+  }
+
+  const now = Date.now();
+  if (now - lastOTPRequestTime < OTP_COOLDOWN) {
+    const remainingTime = Math.ceil((OTP_COOLDOWN - (now - lastOTPRequestTime)) / 1000);
+    showError(`Please wait ${remainingTime} seconds before requesting another OTP.`);
     return;
   }
 
@@ -106,7 +116,12 @@ async function verifyLastFourDigits() {
           const { error: emailError } = await _supabaseClient.auth.signInWithOtp({
             email: data.email
           });
-          if (emailError) throw emailError;
+          if (emailError) {
+            if (emailError.message.includes('rate limit')) {
+              throw new Error("Too many OTP requests. Please try again later.");
+            }
+            throw emailError;
+          }
           showSuccess("OTP sent to your email. Please check and enter the code.");
         } else {
           throw new Error("Unable to send OTP via phone or email.");
@@ -115,6 +130,7 @@ async function verifyLastFourDigits() {
         showSuccess("OTP sent to your phone. Please enter the code.");
       }
 
+      lastOTPRequestTime = now;
       document.getElementById('loginForm').style.display = 'none';
       document.getElementById('otpForm').style.display = 'block';
     } else {
@@ -252,16 +268,16 @@ async function logout() {
 function showError(message) {
   const errorElement = document.getElementById('errorMessage');
   errorElement.textContent = message;
-  errorElement.classList.remove('text-green-500');
-  errorElement.classList.add('text-red-500');
+  errorElement.classList.remove('text-green-500', 'bg-green-100');
+  errorElement.classList.add('text-red-500', 'bg-red-100', 'p-2', 'rounded');
   errorElement.style.display = 'block';
 }
 
 function showSuccess(message) {
   const errorElement = document.getElementById('errorMessage');
   errorElement.textContent = message;
-  errorElement.classList.remove('text-red-500');
-  errorElement.classList.add('text-green-500');
+  errorElement.classList.remove('text-red-500', 'bg-red-100');
+  errorElement.classList.add('text-green-500', 'bg-green-100', 'p-2', 'rounded');
   errorElement.style.display = 'block';
 }
 
@@ -269,7 +285,7 @@ function clearMessage() {
   const errorElement = document.getElementById('errorMessage');
   errorElement.textContent = '';
   errorElement.style.display = 'none';
-  errorElement.classList.remove('text-green-500', 'text-red-500');
+  errorElement.classList.remove('text-green-500', 'bg-green-100', 'text-red-500', 'bg-red-100');
 }
 
 function getCookie(name) {
