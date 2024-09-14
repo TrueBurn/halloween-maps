@@ -8,8 +8,12 @@ const _supabaseClient = createClient(
 let arrayOfLatLngs = [];
 let userMarker;
 
-// Initialize the map
-const map = L.map('map').setView([51.505, -0.09], 13);
+// Define default location (replace with Uitzicht coordinates)
+const defaultLocation = [-33.8688, 18.5122]; // Example: Cape Town coordinates
+const defaultZoom = 15; // Adjust this value as needed
+
+// Initialize the map with default location
+const map = L.map('map').setView(defaultLocation, defaultZoom);
 
 // Create both light and dark tile layers
 const lightTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -110,6 +114,12 @@ let getLocations = async () => {
 getLocations();
 
 function loadHouses(locations) {
+  if (locations.length === 0) {
+    // If no locations, center on default location
+    map.setView(defaultLocation, defaultZoom);
+    return;
+  }
+  
   locations.forEach((location) => {
     arrayOfLatLngs.push(L.latLng(location.latitude, location.longitude));
     L.marker([location.latitude, location.longitude], {
@@ -119,8 +129,14 @@ function loadHouses(locations) {
       .addTo(map)
       .bindPopup(generatePopupForLocation(location));
   });
-  let bounds = L.latLngBounds(arrayOfLatLngs);
-  map.fitBounds(bounds);
+  
+  if (arrayOfLatLngs.length > 0) {
+    let bounds = L.latLngBounds(arrayOfLatLngs);
+    map.fitBounds(bounds);
+  } else {
+    // Fallback to default location if bounds couldn't be calculated
+    map.setView(defaultLocation, defaultZoom);
+  }
 }
 
 function getIconForLocation(location) {
@@ -214,6 +230,9 @@ function toggleTheme() {
   
   updateThemeIcon();
 }
+
+// Add this line to attach the click event listener
+themeToggle.addEventListener('click', toggleTheme);
 
 // Add these functions at the beginning of the file
 function setCookie(name, value, days) {
