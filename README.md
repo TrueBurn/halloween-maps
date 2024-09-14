@@ -10,17 +10,9 @@ Uses supabase for data store
 
 ### locations
 
-Name	Description	Data Type	Format	
-id
-
-No description
-
-uuid	uuid	
-created_at
-
-No description
-
-timestamp with time zone	timestamptz	
+Name	        Description	        Data                        Type	        Format	
+id              No description      uuid	                    uuid	
+created_at      No description      timestamp with time zone	timestamptz	
 modified_at
 
 No description
@@ -66,3 +58,4 @@ route
 Route
 
 USER-DEFINED	route
+

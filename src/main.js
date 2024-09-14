@@ -2,7 +2,14 @@ const { createClient } = supabase;
 
 const _supabaseClient = createClient(
   config.supabase.url,
-  config.supabase.anon_token
+  config.supabase.anon_token,
+  {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true
+    }
+  }
 );
 
 let arrayOfLatLngs = [];
@@ -104,11 +111,10 @@ let refreshmentsIcon = new participatingIcon({
 let getLocations = async () => {
   const { data, error } = await _supabaseClient
     .from("location")
-    .select()
+    .select("id, address, latitude, longitude, location_type, is_participating, phone_number, has_candy, is_start, route")
     .eq("is_participating", true);
   if (error) console.log("error", error);
   loadHouses(data);
-  // console.log('data', data)
 };
 
 getLocations();
@@ -172,13 +178,27 @@ function getIconForLocation(location) {
 }
 
 function generatePopupForLocation(location) {
-  let locationPopup = "";
-  locationPopup += `<strong>Type: </strong>${location.location_type}`;
-  locationPopup += `<br /><strong>Address: </strong>${location.address}`;
-  if (location.is_start) {
-    locationPopup += `<br /><strong>Starting point for route: </strong>${location.route}`;
+  let popupContent = `<b>${location.address}</b>`;
+  
+  popupContent += `<br>Type: ${location.location_type}`;
+  
+  if (location.route) {
+    popupContent += `<br>Route: ${location.route}`;
   }
-  return locationPopup;
+  
+  if (location.has_candy !== null) {
+    popupContent += `<br>Has candy: ${location.has_candy ? 'Yes' : 'No'}`;
+  }
+  
+  if (location.is_start) {
+    popupContent += `<br><strong>Starting point</strong>`;
+  }
+  
+  if (location.phone_number) {
+    popupContent += `<br><i class="fas fa-cog" style="cursor: pointer;" onclick="openConfigPage('${location.id}')" title="Configure"></i>`;
+  }
+  
+  return popupContent;
 }
 
 function getZIndexForLocation(location) {
@@ -268,5 +288,11 @@ if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-s
 
 // Initial icon update
 updateThemeIcon();
+
+// Add this function to handle the "Configure" button click
+function openConfigPage(locationId) {
+  const configUrl = `config.html?locationId=${locationId}`;
+  window.open(configUrl, '_blank');
+}
 
 // ... rest of the existing code ...
