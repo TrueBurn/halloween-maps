@@ -23,6 +23,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  // Set initial theme
+  const savedTheme = getCookie('theme') || localStorage.theme;
+  if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+
+  await loadLocationDetails();
+
   const { data: { user } } = await _supabaseClient.auth.getUser();
   if (user) {
     showConfigForm();
@@ -30,6 +40,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('loginForm').style.display = 'block';
   }
 });
+
+async function loadLocationDetails() {
+  try {
+    const { data, error } = await _supabaseClient
+      .from('location')
+      .select('address, location_type, route')
+      .eq('id', locationId)
+      .single();
+
+    if (error) throw error;
+
+    const detailsElement = document.getElementById('locationDetails');
+    detailsElement.innerHTML = `
+      <p><strong>Address:</strong> ${data.address}</p>
+      <p><strong>Type:</strong> ${data.location_type}</p>
+      ${data.route ? `<p><strong>Route:</strong> ${data.route}</p>` : ''}
+    `;
+  } catch (error) {
+    showError(`Error loading location details: ${error.message}`);
+  }
+}
 
 function formatToE164(phoneNumber) {
   let digits = phoneNumber.replace(/\D/g, '');
@@ -239,4 +270,15 @@ function clearMessage() {
   errorElement.textContent = '';
   errorElement.style.display = 'none';
   errorElement.classList.remove('text-green-500', 'text-red-500');
+}
+
+function getCookie(name) {
+  const nameEQ = name + "=";
+  const ca = document.cookie.split(';');
+  for(let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+  }
+  return null;
 }
