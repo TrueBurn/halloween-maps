@@ -13,6 +13,7 @@ const _supabaseClient = createClient(
 );
 
 let locationId;
+let currentLocationId;
 
 document.addEventListener('DOMContentLoaded', async () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -108,7 +109,7 @@ async function verifyLastFourDigits() {
     if (error) throw error;
 
     if (data.phone_number.endsWith(lastFour)) {
-      // Try phone OTP first
+      currentLocationId = locationId;  // Store the locationId
       const formattedPhoneNumber = formatToE164(data.phone_number);
       const { error: phoneError } = await _supabaseClient.auth.signInWithOtp({
         phone: formattedPhoneNumber
@@ -150,39 +151,8 @@ async function verifyLastFourDigits() {
   }
 }
 
-function startMagicLinkCheck() {
-  const waitingElement = document.getElementById('waitingForMagicLink');
-  const checkInterval = setInterval(async () => {
-    const { data: { user } } = await _supabaseClient.auth.getUser();
-    if (user) {
-      clearInterval(checkInterval);
-      showConfigForm();
-    }
-  }, 2000); // Check every 2 seconds
-
-  // Stop checking after 5 minutes (300000 ms)
-  setTimeout(() => {
-    clearInterval(checkInterval);
-    waitingElement.innerHTML = `
-      <h2 class="text-xl font-semibold text-witch-black dark:text-ghost-white">Magic Link Expired</h2>
-      <p class="text-sm text-gray-600 dark:text-gray-400">
-        The magic link has expired. Please try again.
-      </p>
-      <button onclick="resetLoginForm()" class="mt-4 w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-        Try Again
-      </button>
-    `;
-  }, 300000);
-}
-
-function resetLoginForm() {
-  document.getElementById('waitingForMagicLink').style.display = 'none';
-  document.getElementById('loginForm').style.display = 'block';
-  document.getElementById('lastFourDigits').value = '';
-}
-
 async function verifyOTP() {
-  clearMessage(); // Clear any existing messages
+  clearMessage();
   const otpInput = document.getElementById('otp');
   const otp = otpInput.value;
 
@@ -192,22 +162,33 @@ async function verifyOTP() {
   }
 
   try {
-    const { error } = await _supabaseClient.auth.verifyOtp({
+    // Fetch the full phone number from the database
+    const { data: locationData, error: locationError } = await _supabaseClient
+      .from('location')
+      .select('phone_number')
+      .eq('id', currentLocationId)
+      .single();
+
+    if (locationError) throw locationError;
+
+    const fullPhoneNumber = formatToE164(locationData.phone_number);
+
+    const { data, error } = await _supabaseClient.auth.verifyOtp({
+      phone: fullPhoneNumber,
       token: otp,
       type: 'sms'
     });
-    if (error) {
-      // If SMS verification fails, try email verification
-      const { error: emailError } = await _supabaseClient.auth.verifyOtp({
-        token: otp,
-        type: 'magiclink'
-      });
-      if (emailError) throw emailError;
-    }
 
-    showConfigForm();
+    if (error) throw error;
+
+    if (data.user) {
+      showSuccess("OTP verified successfully!");
+      showConfigForm();
+    } else {
+      throw new Error("Verification successful, but no user data returned.");
+    }
   } catch (error) {
-    showError(error.message);
+    showError(`Error verifying OTP: ${error.message}`);
   }
 }
 
@@ -388,3 +369,34 @@ document.addEventListener('visibilitychange', async function() {
     }
   }
 });
+
+function startMagicLinkCheck() {
+  const waitingElement = document.getElementById('waitingForMagicLink');
+  const checkInterval = setInterval(async () => {
+    const { data: { user } } = await _supabaseClient.auth.getUser();
+    if (user) {
+      clearInterval(checkInterval);
+      showConfigForm();
+    }
+  }, 2000); // Check every 2 seconds
+
+  // Stop checking after 5 minutes (300000 ms)
+  setTimeout(() => {
+    clearInterval(checkInterval);
+    waitingElement.innerHTML = `
+      <h2 class="text-xl font-semibold text-witch-black dark:text-ghost-white">Magic Link Expired</h2>
+      <p class="text-sm text-gray-600 dark:text-gray-400">
+        The magic link has expired. Please try again.
+      </p>
+      <button onclick="resetLoginForm()" class="mt-4 w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+        Try Again
+      </button>
+    `;
+  }, 300000);
+}
+
+function resetLoginForm() {
+  document.getElementById('waitingForMagicLink').style.display = 'none';
+  document.getElementById('loginForm').style.display = 'block';
+  document.getElementById('lastFourDigits').value = '';
+}
