@@ -246,8 +246,6 @@ async function updateHasCandy() {
 
     console.log("Email match:", emailMatch);
     console.log("Phone match:", phoneMatch);
-    console.log("User phone:", user.phone);
-    console.log("Location phone:", locationData.phone_number);
 
     if (!emailMatch && !phoneMatch) {
       throw new Error("User does not have permission to update this location");
