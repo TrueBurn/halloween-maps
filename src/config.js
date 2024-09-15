@@ -171,7 +171,7 @@ async function verifyOTP() {
 
     if (locationError) throw locationError;
 
-    const fullPhoneNumber = formatToE164(locationData.phone_number);
+    const fullPhoneNumber = locationData.phone_number;
 
     const { data, error } = await _supabaseClient.auth.verifyOtp({
       phone: fullPhoneNumber,
@@ -241,11 +241,13 @@ async function updateHasCandy() {
 
     // Check if the user's email matches the location's email
     const emailMatch = user.email && user.email === locationData.email;
-    // Check if the user's phone matches the location's phone
-    const phoneMatch = user.phone && formatToE164(locationData.phone_number) === user.phone;
+    // Check if the user's phone matches the location's phone without formatting
+    const phoneMatch = user.phone && locationData.phone_number === user.phone;
 
     console.log("Email match:", emailMatch);
     console.log("Phone match:", phoneMatch);
+    console.log("User phone:", user.phone);
+    console.log("Location phone:", locationData.phone_number);
 
     if (!emailMatch && !phoneMatch) {
       throw new Error("User does not have permission to update this location");
