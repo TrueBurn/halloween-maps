@@ -80,6 +80,7 @@ let lastOTPRequestTime = 0;
 async function verifyLastFourDigits() {
   clearMessage();
   const lastFourInput = document.getElementById('lastFourDigits');
+  const verifyButton = document.getElementById('verifyButton');
   const lastFour = lastFourInput.value;
 
   if (!/^\d{4}$/.test(lastFour)) {
@@ -87,14 +88,17 @@ async function verifyLastFourDigits() {
     return;
   }
 
-  const now = Date.now();
-  if (now - lastOTPRequestTime < OTP_COOLDOWN) {
-    const remainingTime = Math.ceil((OTP_COOLDOWN - (now - lastOTPRequestTime)) / 1000);
-    showError(`Please wait ${remainingTime} seconds before requesting another OTP.`);
-    return;
-  }
-
   try {
+    verifyButton.disabled = true;
+    verifyButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+
+    const now = Date.now();
+    if (now - lastOTPRequestTime < OTP_COOLDOWN) {
+      const remainingTime = Math.ceil((OTP_COOLDOWN - (now - lastOTPRequestTime)) / 1000);
+      showError(`Please wait ${remainingTime} seconds before requesting another OTP.`);
+      return;
+    }
+
     const { data, error } = await _supabaseClient
       .from('location')
       .select('phone_number, email')
@@ -140,10 +144,14 @@ async function verifyLastFourDigits() {
     }
   } catch (error) {
     showError(error.message);
+  } finally {
+    verifyButton.disabled = false;
+    verifyButton.innerHTML = 'Verify';
   }
 }
 
 function startMagicLinkCheck() {
+  const waitingElement = document.getElementById('waitingForMagicLink');
   const checkInterval = setInterval(async () => {
     const { data: { user } } = await _supabaseClient.auth.getUser();
     if (user) {
@@ -155,10 +163,22 @@ function startMagicLinkCheck() {
   // Stop checking after 5 minutes (300000 ms)
   setTimeout(() => {
     clearInterval(checkInterval);
-    document.getElementById('waitingForMagicLink').style.display = 'none';
-    document.getElementById('loginForm').style.display = 'block';
-    showError("Magic link expired. Please try again.");
+    waitingElement.innerHTML = `
+      <h2 class="text-xl font-semibold text-witch-black dark:text-ghost-white">Magic Link Expired</h2>
+      <p class="text-sm text-gray-600 dark:text-gray-400">
+        The magic link has expired. Please try again.
+      </p>
+      <button onclick="resetLoginForm()" class="mt-4 w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+        Try Again
+      </button>
+    `;
   }, 300000);
+}
+
+function resetLoginForm() {
+  document.getElementById('waitingForMagicLink').style.display = 'none';
+  document.getElementById('loginForm').style.display = 'block';
+  document.getElementById('lastFourDigits').value = '';
 }
 
 async function verifyOTP() {
@@ -341,3 +361,13 @@ function setCookie(name, value, days) {
   }
   document.cookie = name + "=" + (value || "")  + expires + "; path=/";
 }
+
+// Add this function at the end of the file
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden) {
+    const { data: { user } } = _supabaseClient.auth.getUser();
+    if (user) {
+      showConfigForm();
+    }
+  }
+});
