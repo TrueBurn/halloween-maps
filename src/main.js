@@ -101,6 +101,20 @@ let tableWithNoCandyIcon = new participatingIcon({
   iconSize: [40, 40],
   opacity: 0.75
 });
+// Add new car icons using table assets
+let carIcon = new participatingIcon({ 
+  iconUrl: "assets/table.png",
+  iconSize: [40, 40]
+});
+let carStartIcon = new participatingIcon({ 
+  iconUrl: "assets/table_start.png",
+  iconSize: [40, 40]
+});
+let carWithNoCandyIcon = new participatingIcon({
+  iconUrl: "assets/table_no_candy.png",
+  iconSize: [40, 40],
+  opacity: 0.75
+});
 let parkingIcon = new participatingIcon({ 
   iconUrl: "assets/parking.png" 
 });
@@ -166,6 +180,15 @@ function getIconForLocation(location) {
         icon = tableIcon;
       }
       break;
+    case "Car":
+      if (!location.has_candy) {
+        icon = carWithNoCandyIcon;
+      } else if (location.is_start) {
+        icon = carStartIcon;
+      } else {
+        icon = carIcon;
+      }
+      break;
     case "Parking":
       icon = parkingIcon;
       break;
@@ -195,6 +218,9 @@ function generatePopupForLocation(location) {
     case "Table":
       typeIcon = '<i class="fas fa-table" title="Table"></i>';
       break;
+    case "Car":
+      typeIcon = '<i class="fas fa-car" title="Car"></i>';
+      break;
     case "Parking":
       typeIcon = '<i class="fas fa-parking" title="Parking"></i>';
       break;
@@ -207,8 +233,8 @@ function generatePopupForLocation(location) {
     <span>${typeIcon}</span>
   </div>`;
   
-  // Icon for candy availability (only for House and Table)
-  if ((location.location_type === "House" || location.location_type === "Table") && location.has_candy !== null) {
+  // Icon for candy availability (only for House, Table, and Car)
+  if ((location.location_type === "House" || location.location_type === "Table" || location.location_type === "Car") && location.has_candy !== null) {
     let candyIcon = location.has_candy ? 
       '<i class="fas fa-candy-cane" style="color: green;" title="Has candy"></i>' : 
       '<i class="fas fa-times-circle" style="color: red;" title="No candy"></i>';
@@ -247,6 +273,9 @@ function getZIndexForLocation(location) {
       break;
     case "Table":
       zIndex = 8;
+      break;
+    case "Car":
+      zIndex = 7;
       break;
     case "Parking":
       zIndex = 4;
