@@ -245,6 +245,8 @@ async function updateHasCandy() {
       throw new Error("User is not authenticated");
     }
 
+    console.log("Authenticated user:", user);
+
     // Fetch the location data to get the phone number or email
     const { data: locationData, error: locationError } = await _supabaseClient
       .from('location')
@@ -254,11 +256,17 @@ async function updateHasCandy() {
 
     if (locationError) throw locationError;
 
+    console.log("Location data:", locationData);
+
     // Determine which identifier to use (phone or email)
     const identifier = user.phone || user.email;
     const locationIdentifier = locationData.phone_number || locationData.email;
 
+    console.log("User identifier:", identifier);
+    console.log("Location identifier:", locationIdentifier);
+
     if (identifier !== locationIdentifier) {
+      console.log("Identifiers don't match");
       throw new Error("User does not have permission to update this location");
     }
 
@@ -273,8 +281,11 @@ async function updateHasCandy() {
       throw error;
     }
 
+    console.log("Update successful:", data);
+
     showSuccess("Location updated successfully!");
   } catch (error) {
+    console.error("Error in updateHasCandy:", error);
     showError(`Error updating location: ${error.message}`);
   } finally {
     updateButton.disabled = false;
