@@ -258,23 +258,24 @@ async function updateHasCandy() {
 
     console.log("Location data:", locationData);
 
-    // Determine which identifier to use (phone or email)
-    const identifier = user.phone || user.email;
-    const locationIdentifier = locationData.phone_number || locationData.email;
-
-    console.log("User identifier:", identifier);
-    console.log("Location identifier:", locationIdentifier);
-
-    if (identifier !== locationIdentifier) {
-      console.log("Identifiers don't match");
+    // Check if the user's email matches the location's email
+    if (user.email && user.email === locationData.email) {
+      console.log("Email match found");
+    } 
+    // If emails don't match, check if the user's phone matches the location's phone
+    else if (user.phone && formatToE164(locationData.phone_number) === user.phone) {
+      console.log("Phone number match found");
+    } 
+    else {
+      console.log("No matching identifier found");
       throw new Error("User does not have permission to update this location");
     }
 
+    // Perform the update
     const { data, error } = await _supabaseClient
       .from('location')
       .update({ has_candy: hasCandy })
-      .eq('id', locationId)
-      .eq(user.phone ? 'phone_number' : 'email', identifier);
+      .eq('id', locationId);
 
     if (error) {
       console.error('Update error:', error);
