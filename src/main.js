@@ -149,23 +149,22 @@ function getIconForLocation(location) {
   let icon = houseIcon;
   switch (location.location_type) {
     case "House":
-      if (location.is_start) {
+      if (!location.has_candy) {
+        icon = houseWithNoCandyIcon;
+      } else if (location.is_start) {
         icon = houseStartIcon;
       } else {
-        icon = location.has_candy 
-          ? houseIcon 
-          : houseWithNoCandyIcon;
+        icon = houseIcon;
       }
       break;
     case "Table":
-      if (location.is_start) {
+      if (!location.has_candy) {
+        icon = tableWithNoCandyIcon;
+      } else if (location.is_start) {
         icon = tableStartIcon;
       } else {
-        icon = location.has_candy 
-          ? tableIcon 
-          : tableWithNoCandyIcon;
+        icon = tableIcon;
       }
-      
       break;
     case "Parking":
       icon = parkingIcon;
@@ -178,25 +177,64 @@ function getIconForLocation(location) {
 }
 
 function generatePopupForLocation(location) {
-  let popupContent = `<b>${location.address}</b>`;
-  
-  popupContent += `<br>Type: ${location.location_type}`;
+  let popupContent = `<div style="min-width: 200px;">`;
+  popupContent += `<b>${location.address}</b>`;
   
   if (location.route) {
     popupContent += `<br>Route: ${location.route}`;
   }
   
-  if (location.has_candy !== null) {
-    popupContent += `<br>Has candy: ${location.has_candy ? 'Yes' : 'No'}`;
+  popupContent += '<br>';
+
+  // Icon for location type
+  let typeIcon = '';
+  switch (location.location_type) {
+    case "House":
+      typeIcon = '<i class="fas fa-home" title="House"></i>';
+      break;
+    case "Table":
+      typeIcon = '<i class="fas fa-table" title="Table"></i>';
+      break;
+    case "Parking":
+      typeIcon = '<i class="fas fa-parking" title="Parking"></i>';
+      break;
+    case "Refreshments":
+      typeIcon = '<i class="fas fa-coffee" title="Refreshments"></i>';
+      break;
+  }
+  popupContent += `<div style="display: flex; justify-content: space-between;">
+    <span>Type: ${location.location_type}</span>
+    <span>${typeIcon}</span>
+  </div>`;
+  
+  // Icon for candy availability (only for House and Table)
+  if ((location.location_type === "House" || location.location_type === "Table") && location.has_candy !== null) {
+    let candyIcon = location.has_candy ? 
+      '<i class="fas fa-candy-cane" style="color: green;" title="Has candy"></i>' : 
+      '<i class="fas fa-times-circle" style="color: red;" title="No candy"></i>';
+    let candyText = location.has_candy ? "Has candy" : "No candy";
+    popupContent += `<div style="display: flex; justify-content: space-between;">
+      <span>${candyText}</span>
+      <span>${candyIcon}</span>
+    </div>`;
   }
   
+  // Icon for starting point
   if (location.is_start) {
-    popupContent += `<br><strong>Starting point</strong>`;
+    popupContent += `<div style="display: flex; justify-content: space-between;">
+      <span>Starting point</span>
+      <span><i class="fas fa-flag-checkered" title="Starting point"></i></span>
+    </div>`;
   }
   
   if (location.phone_number) {
-    popupContent += `<br><i class="fas fa-cog" style="cursor: pointer;" onclick="openConfigPage('${location.id}')" title="Configure"></i>`;
+    popupContent += `<div style="display: flex; justify-content: space-between;">
+      <span>Configure</span>
+      <span><i class="fas fa-cog" style="cursor: pointer;" onclick="openConfigPage('${location.id}')" title="Configure"></i></span>
+    </div>`;
   }
+  
+  popupContent += '</div>'; // Close the main container div
   
   return popupContent;
 }
