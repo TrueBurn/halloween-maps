@@ -375,11 +375,16 @@ function setCookie(name, value, days) {
 }
 
 // Add this function at the end of the file
-document.addEventListener('visibilitychange', function() {
+document.addEventListener('visibilitychange', async function() {
   if (!document.hidden) {
-    const { data: { user } } = _supabaseClient.auth.getUser();
-    if (user) {
-      showConfigForm();
+    try {
+      const { data, error } = await _supabaseClient.auth.getUser();
+      if (error) throw error;
+      if (data && data.user) {
+        showConfigForm();
+      }
+    } catch (error) {
+      console.error("Error checking user session:", error);
     }
   }
 });
