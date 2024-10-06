@@ -10,83 +10,42 @@ Uses supabase for data store
 
 ### locations
 
-Name	        Description	        Data                        Type	        Format	
-id              No description      uuid	                    uuid	
-created_at      No description      timestamp with time zone	timestamptz	
-modified_at
-
-No description
-
-timestamp with time zone	timestamptz	
-latitude
-
-No description
-
-double precision	float8	
-longitude
-
-No description
-
-double precision	float8	
-address
-
-No description
-
-character varying	varchar	
-is_start
-
-No description
-
-boolean	bool	
-is_participating
-
-No description
-
-boolean	bool	
-has_candy
-
-No description
-
-boolean	bool	
-location_type
-
-No description
-
-USER-DEFINED	location_type	
-route
-
-Route
-
-USER-DEFINED	route
-
-*************************
-
-Use options above to edit
+| Column Name     | Data Type   | Constraints    |
+|-----------------|-------------|----------------|
+| id              | uuid        | Primary Key    |
+| created_at      | timestamptz | Not Null       |
+| modified_at     | timestamptz | Nullable       |
+| latitude        | float8      | Not Null       |
+| longitude       | float8      | Not Null       |
+| address         | varchar     | Nullable       |
+| is_start        | bool        | Not Null       |
+| is_participating| bool        | Not Null       |
+| has_candy       | bool        | Not Null       |
+| location_type   | location_type | Not Null     |
+| route           | route       | Nullable       |
+| phone_number    | varchar     | Nullable       |
+| email           | varchar     | Nullable       |
+| has_activity    | bool        | Nullable       |
+| activity_details| varchar     | Nullable       |
 
 
-alter policy "Users can update their own location's has_candy status"
-on "public"."location"
-to public
-using (
-  (auth.uid() IN ( SELECT auth.uid() AS uid
-   FROM auth.users
-  WHERE (users.phone = (location.phone_number)::text)))
-with check (
-  (auth.uid() IN ( SELECT auth.uid() AS uid
-   FROM auth.users
-  WHERE (users.phone = (location.phone_number)::text)))
-);
+Notes:
+- `location_type` is a custom enumerated type
+- `route` is a custom enumerated type
+- Columns marked with a diamond (♦) in the image are Non-Nullable
+- Columns marked with a circle (○) in the image are Nullable
 
+## Enumerated Types
 
-alter policy "Users can update their own location's has_candy status - email"
-on "public"."location"
-to public
-using (
-  (auth.uid() IN ( SELECT auth.uid() AS uid
-   FROM auth.users
-  WHERE ((users.email)::text = (location.email)::text)))
-with check (
-  (auth.uid() IN ( SELECT auth.uid() AS uid
-   FROM auth.users
-  WHERE ((users.email)::text = (location.email)::text)))
-);
+### location_type
+- House
+- Table
+- Parking
+- Refreshments
+- Car
+
+### route
+- Over 8
+- Under 8
+
+These custom data types are defined in the public schema and can be used in database tables or functions.

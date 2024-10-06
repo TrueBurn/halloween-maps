@@ -1,0 +1,92 @@
+:root {
+  --overlay-border-color: black;
+  --overlay-shadow: 0 0 3px rgba(0, 0, 0, 0.5), 0 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.dark {
+  --overlay-border-color: white;
+  --overlay-shadow: 0 0 3px rgba(255, 255, 255, 0.5), 0 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.location-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50px !important;
+  height: 50px !important;
+  font-size: 24px;
+  color: #333;
+  position: relative;
+}
+
+.house-icon { background-color: transparent; }
+.table-icon { background-color: transparent; }
+.car-icon { background-color: transparent; }
+.parking-icon { background-color: transparent; }
+.refreshments-icon { background-color: transparent; }
+
+.icon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.base-icon {
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.icon-overlay {
+  z-index: 2;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+  opacity: 0.9;
+  border: 2px solid var(--overlay-border-color);
+  box-shadow: var(--overlay-shadow);
+}
+
+.no-candy {
+  background-color: rgba(255, 0, 0, 0.8);
+  top: 2px;
+  right: 2px;
+}
+
+.no-candy::after {
+  content: '✖';
+  color: white;
+}
+
+.start-point {
+  background-color: rgba(0, 128, 0, 0.8);
+  bottom: 2px;
+  left: 2px;
+}
+
+.start-point::after {
+  content: '🏁';
+  font-size: 14px; /* Adjust size as needed */
+}
+
+.has-activity {
+  background-color: rgba(255, 140, 0, 0.7); /* Semi-transparent orange background */
+  top: 2px;
+  left: 2px;
+  border: 2px solid var(--overlay-border-color);
+}
+
+.has-activity::after {
+  content: '🎃'; /* Pumpkin emoji */
+  font-size: 14px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Add a subtle shadow for better visibility */
+}

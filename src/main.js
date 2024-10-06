@@ -69,69 +69,115 @@ map.on("locationerror", onLocationError);
 
 map.locate({ watch: true, enableHighAccuracy: true });
 
-let participatingIcon = L.Icon.extend({
-  options: {
-    iconSize: [50, 50],
-    // iconAnchor:   [22, 94],
-    // shadowAnchor: [4, 62],
-    // popupAnchor:  [-3, -76]
-  },
-});
+function getIconForLocation(location) {
+  let iconSize = [50, 50];
+  
+  // Increase size for house and refreshments icons
+  if (location.location_type === "House") {
+    iconSize = [62, 62]; // 50 * 1.25 = 62.5, rounded down to 62
+  } else if (location.location_type === "Refreshments") {
+    iconSize = [58, 58]; // Make refreshments icon slightly bigger
+  }
+  
+  const baseIconUrl = getBaseIconUrl(location);
+  
+  // Create a div to hold the icon and overlays
+  const iconContainer = L.DomUtil.create('div', 'icon-container');
+  iconContainer.style.position = 'relative';
+  iconContainer.style.width = `${iconSize[0]}px`;
+  iconContainer.style.height = `${iconSize[1]}px`;
+  
+  const imgElement = L.DomUtil.create('img', 'base-icon', iconContainer);
+  imgElement.src = baseIconUrl;
+  imgElement.style.width = '100%';
+  imgElement.style.height = '100%';
+  imgElement.style.position = 'absolute';
+  imgElement.style.top = '0';
+  imgElement.style.left = '0';
 
-let houseIcon = new participatingIcon({ 
-  iconUrl: "assets/house.png" 
-});
-let houseWithNoCandyIcon = new participatingIcon({
-  iconUrl: "assets/house_no_candy.png",
-  opacity: 0.75
-});
-let houseStartIcon = new participatingIcon({
-  iconUrl: "assets/house_start.png"
-});
-let tableIcon = new participatingIcon({ 
-  iconUrl: "assets/table.png",
-  iconSize: [40, 40]
-});
-let tableStartIcon = new participatingIcon({ 
-  iconUrl: "assets/table_start.png",
-  iconSize: [40, 40]
-});
-let tableWithNoCandyIcon = new participatingIcon({
-  iconUrl: "assets/table_no_candy.png",
-  iconSize: [40, 40],
-  opacity: 0.75
-});
-// Add new car icons using table assets
-let carIcon = new participatingIcon({ 
-  iconUrl: "assets/table.png",
-  iconSize: [40, 40]
-});
-let carStartIcon = new participatingIcon({ 
-  iconUrl: "assets/table_start.png",
-  iconSize: [40, 40]
-});
-let carWithNoCandyIcon = new participatingIcon({
-  iconUrl: "assets/table_no_candy.png",
-  iconSize: [40, 40],
-  opacity: 0.75
-});
-let parkingIcon = new participatingIcon({ 
-  iconUrl: "assets/parking.png" 
-});
-let refreshmentsIcon = new participatingIcon({
-  iconUrl: "assets/refreshments.png",
-});
+  // Only add overlays for houses, cars, and tables
+  if (["House", "Car", "Table"].includes(location.location_type)) {
+    const overlaySize = 20; // Slightly smaller overlay size
+    const overlayMargin = 5; // Reduced margin to bring overlays closer to center
+
+    if (!location.has_candy) {
+      const noCandyOverlay = createOverlay('no-candy', overlaySize, overlayMargin, 'top', 'right');
+      iconContainer.appendChild(noCandyOverlay);
+    }
+    
+    if (location.is_start) {
+      const startPointOverlay = createOverlay('start-point', overlaySize, overlayMargin, 'bottom', 'left');
+      iconContainer.appendChild(startPointOverlay);
+    }
+    
+    if (location.has_activity) {
+      const hasActivityOverlay = createOverlay('has-activity', overlaySize, overlayMargin, 'top', 'left');
+      iconContainer.appendChild(hasActivityOverlay);
+    }
+  }
+
+  return L.divIcon({
+    html: iconContainer,
+    className: 'custom-div-icon',
+    iconSize: iconSize,
+    iconAnchor: [iconSize[0] / 2, iconSize[1]],
+  });
+}
+
+function createOverlay(className, size, margin, verticalPosition, horizontalPosition) {
+  const overlay = L.DomUtil.create('div', `icon-overlay ${className}`);
+  overlay.style.width = `${size}px`;
+  overlay.style.height = `${size}px`;
+  overlay.style.position = 'absolute';
+  overlay.style[verticalPosition] = `${margin}px`;
+  overlay.style[horizontalPosition] = `${margin}px`;
+  return overlay;
+}
+
+function getBaseIconUrl(location) {
+  const baseUrl = 'assets/';
+  switch (location.location_type) {
+    case "House":
+      return `${baseUrl}house.png`;
+    case "Table":
+      return `${baseUrl}table.png`;
+    case "Car":
+      return `${baseUrl}table.png`; // Assuming you're using table icon for car
+    case "Parking":
+      return `${baseUrl}parking.png`;
+    case "Refreshments":
+      return `${baseUrl}refreshments.png`;
+    default:
+      return `${baseUrl}house.png`;
+  }
+}
 
 let getLocations = async () => {
+  // Wait for LocationModel to be defined
+  if (typeof LocationModel === 'undefined') {
+    console.error('LocationModel is not defined. Make sure LocationModel.js is loaded before main.js');
+    return;
+  }
+
   const { data, error } = await _supabaseClient
     .from("location")
-    .select("id, address, latitude, longitude, location_type, is_participating, phone_number, has_candy, is_start, route")
+    .select("id, address, latitude, longitude, location_type, is_participating, phone_number, has_candy, is_start, route, has_activity, activity_details")
     .eq("is_participating", true);
   if (error) console.log("error", error);
   loadHouses(data);
 };
 
-getLocations();
+// Wrap the initial call in a function that checks for LocationModel
+function initializeMap() {
+  if (typeof LocationModel !== 'undefined') {
+    getLocations();
+  } else {
+    console.error('LocationModel is not defined. Make sure LocationModel.js is loaded before main.js');
+  }
+}
+
+// Call initializeMap when the window has finished loading
+window.addEventListener('load', initializeMap);
 
 function loadHouses(locations) {
   if (locations.length === 0) {
@@ -140,7 +186,9 @@ function loadHouses(locations) {
     return;
   }
   
-  locations.forEach((location) => {
+  locations.forEach((locationData) => {
+    // Create a LocationModel instance for each location
+    const location = new LocationModel(locationData);
     arrayOfLatLngs.push(L.latLng(location.latitude, location.longitude));
     L.marker([location.latitude, location.longitude], {
       icon: getIconForLocation(location),
@@ -157,46 +205,6 @@ function loadHouses(locations) {
     // Fallback to default location if bounds couldn't be calculated
     map.setView(defaultLocation, defaultZoom);
   }
-}
-
-function getIconForLocation(location) {
-  let icon = houseIcon;
-  switch (location.location_type) {
-    case "House":
-      if (!location.has_candy) {
-        icon = houseWithNoCandyIcon;
-      } else if (location.is_start) {
-        icon = houseStartIcon;
-      } else {
-        icon = houseIcon;
-      }
-      break;
-    case "Table":
-      if (!location.has_candy) {
-        icon = tableWithNoCandyIcon;
-      } else if (location.is_start) {
-        icon = tableStartIcon;
-      } else {
-        icon = tableIcon;
-      }
-      break;
-    case "Car":
-      if (!location.has_candy) {
-        icon = carWithNoCandyIcon;
-      } else if (location.is_start) {
-        icon = carStartIcon;
-      } else {
-        icon = carIcon;
-      }
-      break;
-    case "Parking":
-      icon = parkingIcon;
-      break;
-    case "Refreshments":
-      icon = refreshmentsIcon;
-      break;
-  }
-  return icon;
 }
 
 function generatePopupForLocation(location) {
@@ -251,6 +259,15 @@ function generatePopupForLocation(location) {
       <span>Starting point</span>
       <span><i class="fas fa-flag-checkered" title="Starting point"></i></span>
     </div>`;
+  }
+  
+  // Activity details
+  if (location.has_activity && location.activity_details) {
+    popupContent += `<div style="display: flex; justify-content: space-between;">
+      <span>Activity</span>
+      <span><i class="fas fa-theater-masks" title="Has activity"></i></span>
+    </div>`;
+    popupContent += `<div style="font-style: italic; margin-top: 5px;">${location.activity_details}</div>`;
   }
   
   if (location.phone_number) {
@@ -311,7 +328,7 @@ function toggleTheme() {
     map.removeLayer(lightTiles);
     darkTiles.addTo(map);
   } else {
-    map.removeLayer(darkTiles);
+    map.removeLayer(lightTiles);
     lightTiles.addTo(map);
   }
   

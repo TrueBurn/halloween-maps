@@ -14,6 +14,7 @@ const _supabaseClient = createClient(
 
 let locationId;
 let currentLocationId;
+let locationModel;
 
 document.addEventListener('DOMContentLoaded', async () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -46,17 +47,19 @@ async function loadLocationDetails() {
   try {
     const { data, error } = await _supabaseClient
       .from('location')
-      .select('address, location_type, route')
+      .select('*')  // Select all fields
       .eq('id', locationId)
       .single();
 
     if (error) throw error;
 
+    locationModel = new LocationModel(data);
+
     const detailsElement = document.getElementById('locationDetails');
     detailsElement.innerHTML = `
-      <p><strong>Address:</strong> ${data.address}</p>
-      <p><strong>Type:</strong> ${data.location_type}</p>
-      ${data.route ? `<p><strong>Route:</strong> ${data.route}</p>` : ''}
+      <p><strong>Address:</strong> ${locationModel.address}</p>
+      <p><strong>Type:</strong> ${locationModel.location_type}</p>
+      ${locationModel.route ? `<p><strong>Route:</strong> ${locationModel.route}</p>` : ''}
     `;
   } catch (error) {
     showError(`Error loading location details: ${error.message}`);
@@ -100,26 +103,18 @@ async function verifyLastFourDigits() {
       return;
     }
 
-    const { data, error } = await _supabaseClient
-      .from('location')
-      .select('phone_number, email')
-      .eq('id', locationId)
-      .single();
-
-    if (error) throw error;
-
-    if (data.phone_number.endsWith(lastFour)) {
+    if (locationModel.phone_number.endsWith(lastFour)) {
       currentLocationId = locationId;  // Store the locationId
-      const formattedPhoneNumber = formatToE164(data.phone_number);
+      const formattedPhoneNumber = formatToE164(locationModel.phone_number);
       const { error: phoneError } = await _supabaseClient.auth.signInWithOtp({
         phone: formattedPhoneNumber
       });
 
       if (phoneError) {
         // If phone OTP fails, fall back to email magic link
-        if (data.email) {
+        if (locationModel.email) {
           const { error: emailError } = await _supabaseClient.auth.signInWithOtp({
-            email: data.email
+            email: locationModel.email
           });
           if (emailError) {
             if (emailError.message.includes('rate limit')) {
@@ -198,15 +193,7 @@ async function showConfigForm() {
   document.getElementById('configForm').style.display = 'block';
 
   try {
-    const { data, error } = await _supabaseClient
-      .from('location')
-      .select('has_candy')
-      .eq('id', locationId)
-      .single();
-
-    if (error) throw error;
-
-    document.getElementById('hasCandy').checked = data.has_candy;
+    document.getElementById('hasCandy').checked = locationModel.has_candy;
   } catch (error) {
     showError(error.message);
   }
@@ -240,9 +227,9 @@ async function updateHasCandy() {
     console.log("Location data:", locationData);
 
     // Check if the user's email matches the location's email
-    const emailMatch = user.email && user.email === locationData.email;
+    const emailMatch = user.email && user.email === locationModel.email;
     // Check if the user's phone matches the location's phone without formatting
-    const phoneMatch = user.phone && locationData.phone_number === user.phone;
+    const phoneMatch = user.phone && locationModel.phone_number === user.phone;
 
     console.log("Email match:", emailMatch);
     console.log("Phone match:", phoneMatch);
@@ -264,6 +251,9 @@ async function updateHasCandy() {
     }
 
     console.log("Update successful:", data);
+
+    // Update the locationModel after successful update
+    locationModel.has_candy = hasCandy;
 
     showSuccess("Location updated successfully!");
   } catch (error) {
