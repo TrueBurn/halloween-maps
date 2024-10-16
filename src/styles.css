@@ -1022,3 +1022,27 @@ body{
   color: rgb(229 231 235 / var(--tw-text-opacity));
 }
 
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-grow {
+  flex-grow: 1;
+}
+
+.h-screen {
+  height: 100vh;
+}
+
+/* Make sure these existing classes are present and unchanged */
+.h-full {
+  height: 100%;
+}
+
+.h-12 {
+  height: 3rem;
+}
