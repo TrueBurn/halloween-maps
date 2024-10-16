@@ -21,7 +21,17 @@ const defaultLocation = [-33.8688, 18.5122]; // Example: Cape Town coordinates
 const defaultZoom = 15; // Adjust this value as needed
 
 // Initialize the map with default location
-const map = L.map('map').setView(defaultLocation, defaultZoom);
+const map = L.map('map', {
+  center: defaultLocation,
+  zoom: defaultZoom,
+  zoomControl: false  // This disables the zoom buttons
+});
+
+// Add these lines after the map initialization:
+// map.touchZoom.disable();
+// map.doubleClickZoom.disable();
+// map.boxZoom.disable();
+// map.keyboard.disable();
 
 // Create both light and dark tile layers
 const lightTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
