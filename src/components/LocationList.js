@@ -13,10 +13,11 @@ class LocationList {
     await this.fetchLocations();
     try {
       this.userLocation = await this.getUserLocation();
+      this.updateSortOptions(); // Add this line to update sort options
     } catch (error) {
       console.error("Couldn't get user location:", error);
     }
-    this.applySorting('address');
+    this.applySorting('address'); // Set default sorting to 'address'
     this.updateList(); // This will replace skeleton with actual data
   }
 
@@ -43,13 +44,12 @@ class LocationList {
     const controlsDiv = document.createElement('div');
     controlsDiv.className = 'mb-4 space-y-2';
     const sortOptions = `
-      <option value="">All</option>
       <option value="address">Address</option>
       <option value="location_type">Location Type</option>
       ${this.userLocation ? '<option value="distance">Distance</option>' : ''}
     `;
     controlsDiv.innerHTML = `
-      <div class="flex items-center space-x-2">
+      <div class="flex items-center space-x-2 mb-2">
         <div class="flex-grow relative">
           <input type="text" id="address-filter" placeholder="Filter by address" class="p-2 pr-8 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm w-full">
           <i class="fas fa-search absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
@@ -58,30 +58,28 @@ class LocationList {
           <i class="fas fa-sliders-h text-gray-600 dark:text-gray-300"></i>
         </button>
       </div>
-      <div id="advanced-filters" class="hidden">
-        <div class="flex flex-wrap gap-2">
-          <div class="flex-1 min-w-[200px]">
-            <label for="candy-filter" class="text-sm font-medium mb-1 block">Filter by candy:</label>
-            <select id="candy-filter" class="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm w-full">
-              <option value="">All Candy</option>
-              <option value="true">Has Candy</option>
-              <option value="false">No Candy</option>
-            </select>
-          </div>
-          <div class="flex-1 min-w-[200px]">
-            <label for="activity-filter" class="text-sm font-medium mb-1 block">Filter by activity:</label>
-            <select id="activity-filter" class="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm w-full">
-              <option value="">All Activities</option>
-              <option value="true">Has Activity</option>
-              <option value="false">No Activity</option>
-            </select>
-          </div>
-          <div class="flex-1 min-w-[200px]">
-            <label for="sort-by" class="text-sm font-medium mb-1 block">Sort by:</label>
-            <select id="sort-by" class="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm w-full">
-              ${sortOptions}
-            </select>
-          </div>
+      <div id="advanced-filters" class="hidden space-y-2">
+        <div>
+          <label for="candy-filter" class="text-sm font-medium mb-1 block">Filter by candy:</label>
+          <select id="candy-filter" class="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm w-full">
+            <option value="">All</option>
+            <option value="true">Has Candy</option>
+            <option value="false">No Candy</option>
+          </select>
+        </div>
+        <div>
+          <label for="activity-filter" class="text-sm font-medium mb-1 block">Filter by activity:</label>
+          <select id="activity-filter" class="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm w-full">
+            <option value="">All</option>
+            <option value="true">Has Activity</option>
+            <option value="false">No Activity</option>
+          </select>
+        </div>
+        <div>
+          <label for="sort-by" class="text-sm font-medium mb-1 block">Sort by:</label>
+          <select id="sort-by" class="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm w-full">
+            ${sortOptions}
+          </select>
         </div>
       </div>
     `;
@@ -94,9 +92,9 @@ class LocationList {
       <thead class="bg-gray-200 dark:bg-gray-700">
         <tr>
           <th class="p-2 text-left">Address</th>
-          <th class="p-2 text-left">Type</th>
-          <th class="p-2 text-left">Candy</th>
-          <th class="p-2 text-left">Activity</th>
+          <th class="p-2 text-center">Type</th>
+          <th class="p-2 text-center">Candy</th>
+          <th class="p-2 text-center">Activity</th>
         </tr>
       </thead>
       <tbody id="location-list-body">
@@ -110,7 +108,7 @@ class LocationList {
 
   updateList() {
     const tbody = document.getElementById('location-list-body');
-    tbody.innerHTML = ''; // This will clear skeleton rows
+    tbody.innerHTML = '';
 
     if (this.filteredLocations.length === 0) {
       tbody.innerHTML = '<tr><td colspan="4" class="p-2 text-center">No locations found</td></tr>';
@@ -123,7 +121,7 @@ class LocationList {
       
       const typeIcon = this.getIconForLocationType(location.location_type);
       const candyInfo = this.getCandyInfo(location);
-      const activityIcon = location.has_activity ? '<i class="fas fa-theater-masks ml-1 text-gray-500" title="Has activity"></i>' : '';
+      const activityInfo = this.getActivityInfo(location);
 
       let distanceInfo = '';
       if (this.userLocation) {
@@ -138,22 +136,14 @@ class LocationList {
         <td class="p-2">
           <div class="font-semibold">${location.address || ''} ${distanceInfo}</div>
         </td>
-        <td class="p-2">
-          <div class="flex items-center">
-            <span class="mr-1">${location.location_type || ''}</span>
-            ${typeIcon}
-          </div>
+        <td class="p-2 text-center">
+          ${typeIcon}
         </td>
-        <td class="p-2">
-          <div class="flex items-center justify-center">
-            ${candyInfo}
-          </div>
+        <td class="p-2 text-center">
+          ${candyInfo}
         </td>
-        <td class="p-2">
-          <div class="flex items-center">
-            <span class="mr-1">${location.activity_details || ''}</span>
-            ${activityIcon}
-          </div>
+        <td class="p-2 text-center">
+          ${activityInfo}
         </td>
       `;
       tbody.appendChild(row);
@@ -301,7 +291,47 @@ class LocationList {
     `;
     return skeletonRow.repeat(count);
   }
+
+  updateSortOptions() {
+    const sortBySelect = document.getElementById('sort-by');
+    if (sortBySelect) {
+      const currentValue = sortBySelect.value;
+      sortBySelect.innerHTML = `
+        <option value="address">Address</option>
+        <option value="location_type">Location Type</option>
+        ${this.userLocation ? '<option value="distance">Distance</option>' : ''}
+      `;
+      sortBySelect.value = currentValue || 'address'; // Default to 'address' if no value is set
+    }
+  }
+
+  getActivityInfo(location) {
+    if (location.has_activity) {
+      const activityDetails = location.activity_details || '';
+      return `<i class="fas fa-theater-masks text-gray-500 cursor-pointer" 
+                title="${activityDetails}"
+                onclick="showActivityPopup('${location.address}', '${activityDetails}')"
+              ></i>`;
+    }
+    return '';
+  }
+
+  showActivityPopup(address, details) {
+    const popup = document.createElement('div');
+    popup.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    popup.innerHTML = `
+      <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg max-w-sm w-full">
+        <h3 class="text-lg font-semibold mb-2">${address}</h3>
+        <p class="mb-4">${details || 'No additional details available.'}</p>
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onclick="this.closest('.fixed').remove()">
+          Close
+        </button>
+      </div>
+    `;
+    document.body.appendChild(popup);
+  }
 }
 
 // Make LocationList available globally
 window.LocationList = LocationList;
+window.showActivityPopup = LocationList.prototype.showActivityPopup;

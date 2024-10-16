@@ -14,6 +14,7 @@ const _supabaseClient = createClient(
 
 let arrayOfLatLngs = [];
 let userMarker;
+let userLocation = null;
 
 // Define default location (replace with Uitzicht coordinates)
 const defaultLocation = [-33.8688, 18.5122]; // Example: Cape Town coordinates
@@ -40,23 +41,17 @@ if (document.documentElement.classList.contains('dark')) {
 
 function onLocationFound(e) {
   let radius = e.accuracy;
+  userLocation = e.latlng;
 
   if (userMarker) {
-    userMarker.bindPopup("You are within " + radius + " meters from this point")
-    userMarker.setLatLng(e.latlng)
+    userMarker.setLatLng(e.latlng);
   } else {
     userMarker = new L.marker(e.latlng)
-    userMarker
       .addTo(map)
       .bindPopup("You are within " + radius + " meters from this point");
   }
 
-  // L.marker(e.latlng)
-  //   .addTo(map)
-  //   .bindPopup("You are within " + radius + " meters from this point");
-  // .openPopup();
-
-  // L.circle(e.latlng, radius).addTo(map);
+  updateAllPopups(); // Add this line to update all popups
 }
 
 function onLocationError(e) {
@@ -181,28 +176,27 @@ window.addEventListener('load', initializeMap);
 
 function loadHouses(locations) {
   if (locations.length === 0) {
-    // If no locations, center on default location
     map.setView(defaultLocation, defaultZoom);
     return;
   }
   
   locations.forEach((locationData) => {
-    // Create a LocationModel instance for each location
     const location = new LocationModel(locationData);
     arrayOfLatLngs.push(L.latLng(location.latitude, location.longitude));
-    L.marker([location.latitude, location.longitude], {
+    const marker = L.marker([location.latitude, location.longitude], {
       icon: getIconForLocation(location),
       zIndexOffset: getZIndexForLocation(location)
     })
       .addTo(map)
-      .bindPopup(generatePopupForLocation(location));
+      .bindPopup(() => generatePopupForLocation(location));
+    
+    marker.location = location; // Store the location data with the marker
   });
   
   if (arrayOfLatLngs.length > 0) {
     let bounds = L.latLngBounds(arrayOfLatLngs);
     map.fitBounds(bounds);
   } else {
-    // Fallback to default location if bounds couldn't be calculated
     map.setView(defaultLocation, defaultZoom);
   }
 }
@@ -213,6 +207,14 @@ function generatePopupForLocation(location) {
   
   if (location.route) {
     popupContent += `<br>Route: ${location.route}`;
+  }
+  
+  if (userLocation) {
+    const distance = calculateDistance(
+      userLocation.lat, userLocation.lng,
+      location.latitude, location.longitude
+    );
+    popupContent += `<br>Distance: ${distance} km`;
   }
   
   popupContent += '<br>';
@@ -377,6 +379,27 @@ updateThemeIcon();
 function openConfigPage(locationId) {
   const configUrl = `config.html?locationId=${locationId}`;
   window.open(configUrl, '_blank');
+}
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Radius of the Earth in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const distance = R * c; // Distance in km
+  return distance.toFixed(2);
+}
+
+function updateAllPopups() {
+  map.eachLayer(layer => {
+    if (layer instanceof L.Marker && !(layer === userMarker)) {
+      layer.getPopup().setContent(generatePopupForLocation(layer.location));
+    }
+  });
 }
 
 // ... rest of the existing code ...
