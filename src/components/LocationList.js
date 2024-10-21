@@ -6,6 +6,7 @@ class LocationList {
     this.orderAsc = true;
     this.userLocation = null;
     this.advancedFiltersVisible = false;
+    this.urlParams = new URLSearchParams(window.location.search);
   }
 
   async init() {
@@ -17,7 +18,7 @@ class LocationList {
     } catch (error) {
       console.error("Couldn't get user location:", error);
     }
-    this.applySorting('address'); // Set default sorting to 'address'
+    this.applyFiltersFromURL(); // Apply filters from URL
     this.updateList(); // This will replace skeleton with actual data
   }
 
@@ -180,7 +181,7 @@ class LocationList {
     document.getElementById('address-filter').addEventListener('input', () => this.applyFilters());
     document.getElementById('candy-filter').addEventListener('change', () => this.applyFilters());
     document.getElementById('activity-filter').addEventListener('change', () => this.applyFilters());
-    document.getElementById('sort-by').addEventListener('change', (e) => this.applySorting(e.target.value));
+    document.getElementById('sort-by').addEventListener('change', () => this.applyFilters());
     
     // Add event listener for the toggle button
     document.getElementById('toggle-filters').addEventListener('click', () => this.toggleAdvancedFilters());
@@ -205,6 +206,7 @@ class LocationList {
     const addressFilter = document.getElementById('address-filter').value.toLowerCase();
     const candyFilter = document.getElementById('candy-filter').value;
     const activityFilter = document.getElementById('activity-filter').value;
+    const sortBy = document.getElementById('sort-by').value;
 
     this.filteredLocations = this.locations.filter(location => {
       return (
@@ -214,7 +216,41 @@ class LocationList {
       );
     });
 
-    this.updateList();
+    this.updateURL(addressFilter, candyFilter, activityFilter, sortBy);
+    this.applySorting(sortBy);
+  }
+
+  updateURL(address, candy, activity, sortBy) {
+    const params = new URLSearchParams();
+    if (address) params.set('address', encodeURIComponent(address));
+    if (candy) params.set('candy', encodeURIComponent(candy));
+    if (activity) params.set('activity', encodeURIComponent(activity));
+    if (sortBy) params.set('sort', encodeURIComponent(sortBy));
+
+    const newURL = `${window.location.pathname}?${params.toString()}`;
+    history.pushState(null, '', newURL);
+  }
+
+  applyFiltersFromURL() {
+    const addressFilter = decodeURIComponent(this.urlParams.get('address') || '');
+    const candyFilter = decodeURIComponent(this.urlParams.get('candy') || '');
+    const activityFilter = decodeURIComponent(this.urlParams.get('activity') || '');
+    const sortBy = decodeURIComponent(this.urlParams.get('sort') || 'address');
+
+    document.getElementById('address-filter').value = addressFilter;
+    document.getElementById('candy-filter').value = candyFilter;
+    document.getElementById('activity-filter').value = activityFilter;
+    document.getElementById('sort-by').value = sortBy;
+
+    this.filteredLocations = this.locations.filter(location => {
+      return (
+        location.address.toLowerCase().includes(addressFilter.toLowerCase()) &&
+        (candyFilter === '' || location.has_candy.toString() === candyFilter) &&
+        (activityFilter === '' || (location.has_activity ? 'true' : 'false') === activityFilter)
+      );
+    });
+
+    this.applySorting(sortBy);
   }
 
   applySorting(sortBy) {
