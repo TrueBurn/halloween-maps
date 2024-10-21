@@ -7,6 +7,7 @@ class LocationList {
     this.userLocation = null;
     this.advancedFiltersVisible = false;
     this.urlParams = new URLSearchParams(window.location.search);
+    this.totalLocations = 0;
   }
 
   async init() {
@@ -35,6 +36,8 @@ class LocationList {
 
     this.locations = data.map(locationData => new LocationModel(locationData));
     this.filteredLocations = [...this.locations];
+    this.totalLocations = this.locations.length;
+    this.updateLocationCount();
   }
 
   render() {
@@ -83,6 +86,7 @@ class LocationList {
           </select>
         </div>
       </div>
+      <div id="location-count" class="text-sm text-gray-600 dark:text-gray-400 mt-2"></div>
     `;
     container.appendChild(controlsDiv);
 
@@ -113,42 +117,51 @@ class LocationList {
 
     if (this.filteredLocations.length === 0) {
       tbody.innerHTML = '<tr><td colspan="4" class="p-2 text-center">No locations found</td></tr>';
-      return;
+    } else {
+      this.filteredLocations.forEach((location, index) => {
+        const row = document.createElement('tr');
+        row.className = 'border-b border-gray-300 dark:border-gray-600';
+        
+        const typeIcon = this.getIconForLocationType(location.location_type);
+        const candyInfo = this.getCandyInfo(location);
+        const activityInfo = this.getActivityInfo(location);
+
+        let distanceInfo = '';
+        if (this.userLocation) {
+          const distance = this.calculateDistance(
+            this.userLocation.latitude, this.userLocation.longitude,
+            location.latitude, location.longitude
+          );
+          distanceInfo = `<span class="text-xs text-gray-500">(${distance} km)</span>`;
+        }
+
+        row.innerHTML = `
+          <td class="p-2">
+            <div class="font-semibold">${location.address || ''} ${distanceInfo}</div>
+          </td>
+          <td class="p-2 text-center">
+            ${typeIcon}
+          </td>
+          <td class="p-2 text-center">
+            ${candyInfo}
+          </td>
+          <td class="p-2 text-center">
+            ${activityInfo}
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
     }
 
-    this.filteredLocations.forEach((location, index) => {
-      const row = document.createElement('tr');
-      row.className = 'border-b border-gray-300 dark:border-gray-600';
-      
-      const typeIcon = this.getIconForLocationType(location.location_type);
-      const candyInfo = this.getCandyInfo(location);
-      const activityInfo = this.getActivityInfo(location);
+    // Update the location count
+    this.updateLocationCount();
+  }
 
-      let distanceInfo = '';
-      if (this.userLocation) {
-        const distance = this.calculateDistance(
-          this.userLocation.latitude, this.userLocation.longitude,
-          location.latitude, location.longitude
-        );
-        distanceInfo = `<span class="text-xs text-gray-500">(${distance} km)</span>`;
-      }
-
-      row.innerHTML = `
-        <td class="p-2">
-          <div class="font-semibold">${location.address || ''} ${distanceInfo}</div>
-        </td>
-        <td class="p-2 text-center">
-          ${typeIcon}
-        </td>
-        <td class="p-2 text-center">
-          ${candyInfo}
-        </td>
-        <td class="p-2 text-center">
-          ${activityInfo}
-        </td>
-      `;
-      tbody.appendChild(row);
-    });
+  updateLocationCount() {
+    const countElement = document.getElementById('location-count');
+    if (countElement) {
+      countElement.textContent = `Showing ${this.filteredLocations.length} of ${this.totalLocations} locations`;
+    }
   }
 
   getIconForLocationType(locationType) {
