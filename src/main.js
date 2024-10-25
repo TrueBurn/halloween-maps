@@ -412,4 +412,65 @@ function updateAllPopups() {
   });
 }
 
-// ... rest of the existing code ...
+// Add these functions at the beginning of the file, after the existing cookie functions
+
+function showModal() {
+  document.getElementById('infoModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+}
+
+function hideModal() {
+  document.getElementById('infoModal').classList.add('hidden');
+  document.body.style.overflow = ''; // Restore scrolling
+}
+
+function setModalShownCookie() {
+  setCookie('modalShown', 'true', 365); // Set cookie for 1 year
+}
+
+function hasModalBeenShown() {
+  return getCookie('modalShown') === 'true';
+}
+
+// Add this code at the end of the file
+
+document.addEventListener('DOMContentLoaded', function() {
+  const modal = document.getElementById('infoModal');
+  const closeBtn = modal.querySelector('.close');
+  const showInfoBtn = document.getElementById('showInfoModal');
+
+  // Show modal on first visit
+  if (!hasModalBeenShown()) {
+    showModal();
+    setModalShownCookie();
+  }
+
+  // Close modal when clicking the close button
+  closeBtn.onclick = function() {
+    hideModal();
+  }
+
+  // Close modal when clicking outside of it
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      hideModal();
+    }
+  }
+
+  // Show modal when clicking the info button
+  showInfoBtn.onclick = function() {
+    showModal();
+  }
+
+  // Add touch event for mobile devices
+  modal.addEventListener('touchstart', function(event) {
+    if (event.target == modal) {
+      hideModal();
+    }
+  });
+
+  // Prevent scrolling on modal content from closing the modal
+  modal.querySelector('.modal-content').addEventListener('touchmove', function(event) {
+    event.stopPropagation();
+  });
+});

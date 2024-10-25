@@ -61,6 +61,39 @@
   </head>
 
   <body class="flex flex-col h-screen bg-ghost-white dark:bg-witch-black text-witch-black dark:text-ghost-white">
+    <div id="infoModal" class="modal hidden">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 class="text-2xl font-bold mb-4">Important Information</h2>
+        <div class="space-y-4">
+          <section>
+            <h3 class="text-xl font-semibold mb-2">Starting Points</h3>
+            <ul class="list-disc list-inside">
+              <li>8 years and older: Starting at 55 Dundee</li>
+              <li>7 years and younger: Starting at 12 Naples</li>
+              <li>Toddlers (3 and under only): Starting at 2 Mont Blanc</li>
+            </ul>
+            <p class="mt-2"><strong>Note:</strong> If you have kids in mixed age groups, start at the oldest child's starting point.</p>
+            <p class="mt-2"><strong>Start time:</strong> FROM 4pm (you can arrive a bit later)</p>
+          </section>
+          <section>
+            <h3 class="text-xl font-semibold mb-2">Parking</h3>
+            <p>Park at designated marked areas or by Checkers and Spar.</p>
+          </section>
+          <section>
+            <h3 class="text-xl font-semibold mb-2">Important Rules</h3>
+            <p>The following will result in your child not getting candy:</p>
+            <ul class="list-disc list-inside mt-2">
+              <li>No official band</li>
+              <li>Pushing or shoving</li>
+              <li>Greedy grabbing</li>
+            </ul>
+            <p class="mt-2"><strong>Note:</strong> Many donors have requested stricter enforcement for non-donation arrivals. Please be kind and have fun!</p>
+          </section>
+        </div>
+      </div>
+    </div>
+
     <nav class="bg-pumpkin-orange dark:bg-blood-red shadow-lg h-12 sticky top-0">
       <div class="max-w-6xl mx-auto px-4 py-2">
         <div class="flex justify-between items-center">
@@ -87,6 +120,13 @@
               title="Toggle Dark Mode"
             >
               <i class="fa-solid fa-moon"></i>
+            </button>
+            <button
+              id="showInfoModal"
+              class="outline-none hover:text-halloween-purple dark:hover:text-ghost-white transition-colors duration-200"
+              title="Show Information"
+            >
+              <i class="fa-solid fa-info-circle"></i>
             </button>
           </div>
         </div>
