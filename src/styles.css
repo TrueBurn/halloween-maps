@@ -1180,3 +1180,22 @@ body{
   box-shadow: 0 0 0 2px #007bff;
 }
 
+/* Add this to your existing styles */
+#locationButton {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  padding: 10px;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.dark #locationButton {
+  background-color: #4a5568;
+  color: #ffffff;
+}
+
+.dark #locationButton:hover {
+  background-color: #2d3748;
+}

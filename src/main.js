@@ -49,6 +49,11 @@ if (document.documentElement.classList.contains('dark')) {
   lightTiles.addTo(map);
 }
 
+// Add these variables at the top of your file
+let locationButton;
+let isFirstLocation = true;
+
+// Modify the onLocationFound function
 function onLocationFound(e) {
   let radius = e.accuracy;
   userLocation = e.latlng;
@@ -64,6 +69,17 @@ function onLocationFound(e) {
   }
 
   updateAllPopups();
+
+  // Show the location button
+  if (locationButton) {
+    locationButton.classList.remove('hidden');
+  }
+
+  // Center map on first location found
+  if (isFirstLocation) {
+    map.setView(e.latlng, map.getZoom());
+    isFirstLocation = false;
+  }
 }
 
 function onLocationError(e) {
@@ -475,5 +491,17 @@ document.addEventListener('DOMContentLoaded', function() {
   modal.querySelector('.modal-content').addEventListener('touchmove', function(event) {
     event.stopPropagation();
   });
+
+  // Add this new code
+  locationButton = document.getElementById('locationButton');
+  if (locationButton) {
+    locationButton.addEventListener('click', centerMapOnUser);
+  }
 });
 
+// Add this function to center the map on the user's location
+function centerMapOnUser() {
+  if (userLocation) {
+    map.setView(userLocation, map.getZoom());
+  }
+}
