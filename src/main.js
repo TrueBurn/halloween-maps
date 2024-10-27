@@ -49,10 +49,6 @@ if (document.documentElement.classList.contains('dark')) {
   lightTiles.addTo(map);
 }
 
-// Add these variables at the top of your file
-let locationButton;
-let isFirstLocation = true;
-
 // Modify the onLocationFound function
 function onLocationFound(e) {
   let radius = e.accuracy;
@@ -69,20 +65,6 @@ function onLocationFound(e) {
   }
 
   updateAllPopups();
-
-  // Show the location button
-  if (locationButton) {
-    locationButton.classList.remove('hidden');
-    console.log('Location button should be visible now'); // Add this line for debugging
-  } else {
-    console.log('Location button not found'); // Add this line for debugging
-  }
-
-  // Center map on first location found
-  if (isFirstLocation) {
-    map.setView(e.latlng, map.getZoom());
-    isFirstLocation = false;
-  }
 }
 
 function onLocationError(e) {
@@ -496,9 +478,11 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Add this new code
-  locationButton = document.getElementById('locationButton');
+  const locationButton = document.getElementById('locationButton');
   if (locationButton) {
     locationButton.addEventListener('click', centerMapOnUser);
+  } else {
+    console.log('Location button not found');
   }
 });
 
@@ -506,6 +490,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function centerMapOnUser() {
   if (userLocation) {
     map.setView(userLocation, map.getZoom());
+  } else {
+    console.log("User location not available");
   }
 }
-
