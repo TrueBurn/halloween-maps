@@ -224,10 +224,10 @@ function loadHouses(locations) {
 
 function generatePopupForLocation(location) {
   let popupContent = `<div style="min-width: 200px;">`;
-  popupContent += `<b>${location.address}</b>`;
+  popupContent += `<h3 style="font-weight: bold; margin-bottom: 8px;">${location.address}</h3>`;
   
   if (location.route) {
-    popupContent += `<br>Route: ${location.route}`;
+    popupContent += `<div>Route: ${location.route}</div>`;
   }
   
   if (userLocation) {
@@ -235,77 +235,70 @@ function generatePopupForLocation(location) {
       userLocation.lat, userLocation.lng,
       location.latitude, location.longitude
     );
-    popupContent += `<br>Distance: ${distance} m`;
+    popupContent += `<div>Distance: ${distance} m</div>`;
   }
   
-  popupContent += '<br>';
-
-  // Icon for location type
-  let typeIcon = '';
-  switch (location.location_type) {
-    case "House":
-      typeIcon = '<i class="fas fa-home" title="House"></i>';
-      break;
-    case "Table":
-      typeIcon = '<i class="fas fa-table" title="Table"></i>';
-      break;
-    case "Car":
-      typeIcon = '<i class="fas fa-car" title="Car"></i>';
-      break;
-    case "Parking":
-      typeIcon = '<i class="fas fa-parking" title="Parking"></i>';
-      break;
-    case "Refreshments":
-      typeIcon = '<i class="fas fa-coffee" title="Refreshments"></i>';
-      break;
-  }
-  popupContent += `<div style="display: flex; justify-content: space-between;">
-    <span>Type: ${location.location_type}</span>
-    <span>${typeIcon}</span>
+  popupContent += `<div style="display: flex; justify-content: space-between; align-items: center;">
+    <span>${location.location_type}</span>
+    <span>${getIconForLocationType(location.location_type)}</span>
   </div>`;
   
-  // Icon for candy availability (only for House, Table, and Car)
   if ((location.location_type === "House" || location.location_type === "Table" || location.location_type === "Car") && location.has_candy !== null) {
     let candyIcon = location.has_candy ? 
       '<i class="fas fa-candy-cane" style="color: green;" title="Has candy"></i>' : 
       '<i class="fas fa-times-circle" style="color: red;" title="No candy"></i>';
     let candyText = location.has_candy ? "Has candy" : "No candy";
-    popupContent += `<div style="display: flex; justify-content: space-between;">
+    popupContent += `<div style="display: flex; justify-content: space-between; align-items: center;">
       <span>${candyText}</span>
       <span>${candyIcon}</span>
     </div>`;
   }
   
-  // Icon for starting point
   if (location.is_start) {
-    popupContent += `<div style="display: flex; justify-content: space-between;">
+    popupContent += `<div style="display: flex; justify-content: space-between; align-items: center;">
       <span>Starting point</span>
       <span><i class="fas fa-flag-checkered" title="Starting point"></i></span>
     </div>`;
   }
   
-  // Activity details
   if (location.has_activity && location.activity_details) {
-    popupContent += `<div style="display: flex; justify-content: space-between;">
+    popupContent += `<div style="display: flex; justify-content: space-between; align-items: center;">
       <span>Activity</span>
       <span><i class="fas fa-theater-masks" title="Has activity"></i></span>
     </div>`;
-    popupContent += `<div style="font-style: italic; margin-top: 5px;">${location.activity_details}</div>`;
+    popupContent += `<div style="font-style: italic; margin-top: 4px;">${location.activity_details}</div>`;
   }
   
   if (location.phone_number) {
-    popupContent += `<div style="display: flex; justify-content: space-between;">
+    popupContent += `<div style="display: flex; justify-content: space-between; align-items: center;">
       <span>Configure</span>
       <span><i class="fas fa-cog" style="cursor: pointer;" onclick="openConfigPage('${location.id}')" title="Configure"></i></span>
     </div>`;
   }
   
-  // Add a "Get Directions" button at the end of the popup content
   popupContent += `<button onclick="getDirections(${location.latitude}, ${location.longitude})" class="get-directions-btn">Get Directions</button>`;
 
-  popupContent += '</div>'; // Close the main container div
+  popupContent += '</div>';
   
   return popupContent;
+}
+
+// Add this helper function to get icons for location types
+function getIconForLocationType(locationType) {
+  switch (locationType) {
+    case "House":
+      return '<i class="fas fa-home" title="House"></i>';
+    case "Table":
+      return '<i class="fas fa-table" title="Table"></i>';
+    case "Car":
+      return '<i class="fas fa-car" title="Car"></i>';
+    case "Parking":
+      return '<i class="fas fa-parking" title="Parking"></i>';
+    case "Refreshments":
+      return '<i class="fas fa-coffee" title="Refreshments"></i>';
+    default:
+      return '<i class="fas fa-question-circle" title="Unknown"></i>';
+  }
 }
 
 function getZIndexForLocation(location) {

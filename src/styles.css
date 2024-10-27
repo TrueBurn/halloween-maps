@@ -1283,3 +1283,65 @@ body{
 .dark .get-directions-btn:hover {
   background-color: #34495E;
 }
+
+/* Add these styles at the end of your existing CSS file */
+
+/* Leaflet Routing Machine dark mode styles */
+.dark .leaflet-routing-container {
+  background-color: #333;
+  color: #fff;
+}
+
+.dark .leaflet-routing-alt {
+  background-color: #444;
+}
+
+.dark .leaflet-routing-alt tr:hover {
+  background-color: #555;
+}
+
+.dark .leaflet-routing-alt-minimized {
+  background-color: #333;
+}
+
+/* Improved Get Directions button */
+.get-directions-btn {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 4px 0;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+  width: 100%;
+}
+
+.get-directions-btn:hover {
+  background-color: #45a049;
+}
+
+.dark .get-directions-btn {
+  background-color: #2C3E50;
+}
+
+.dark .get-directions-btn:hover {
+  background-color: #34495E;
+}
+
+/* Adjust popup content layout */
+.leaflet-popup-content {
+  margin: 10px;
+}
+
+.leaflet-popup-content > div {
+  margin-bottom: 8px;
+}
+
+.leaflet-popup-content > div:last-child {
+  margin-bottom: 0;
+}
