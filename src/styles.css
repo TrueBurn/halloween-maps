@@ -1304,44 +1304,71 @@ body{
   background-color: #333;
 }
 
-/* Improved Get Directions button */
-.get-directions-btn {
-  background-color: #4CAF50;
-  border: none;
-  color: white;
-  padding: 6px 12px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 14px;
-  margin: 4px 0;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-  width: 100%;
+/* Style for direction icons in dark mode */
+.dark .leaflet-routing-icon {
+  background-image: url('https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet.routing.icons.png');
+  filter: invert(1) hue-rotate(180deg);
 }
 
-.get-directions-btn:hover {
-  background-color: #45a049;
+.dark .leaflet-routing-icon-continue {
+  background-position: 0 0;
 }
 
-.dark .get-directions-btn {
-  background-color: #2C3E50;
+.dark .leaflet-routing-icon-sharp-right {
+  background-position: -20px 0;
 }
 
-.dark .get-directions-btn:hover {
-  background-color: #34495E;
+.dark .leaflet-routing-icon-turn-right {
+  background-position: -40px 0;
 }
 
-/* Adjust popup content layout */
-.leaflet-popup-content {
-  margin: 10px;
+.dark .leaflet-routing-icon-bear-right {
+  background-position: -60px 0;
 }
 
-.leaflet-popup-content > div {
-  margin-bottom: 8px;
+.dark .leaflet-routing-icon-u-turn {
+  background-position: -80px 0;
 }
 
-.leaflet-popup-content > div:last-child {
-  margin-bottom: 0;
+.dark .leaflet-routing-icon-sharp-left {
+  background-position: -100px 0;
+}
+
+.dark .leaflet-routing-icon-turn-left {
+  background-position: -120px 0;
+}
+
+.dark .leaflet-routing-icon-bear-left {
+  background-position: -140px 0;
+}
+
+.dark .leaflet-routing-icon-depart {
+  background-position: -160px 0;
+}
+
+.dark .leaflet-routing-icon-enter-roundabout {
+  background-position: -180px 0;
+}
+
+.dark .leaflet-routing-icon-arrive {
+  background-position: -200px 0;
+}
+
+.dark .leaflet-routing-icon-via {
+  background-position: -220px 0;
+}
+
+/* Ensure text is visible in dark mode */
+.dark .leaflet-routing-geocoder input {
+  color: #fff;
+  background-color: #444;
+}
+
+.dark .leaflet-routing-geocoder-result table {
+  background-color: #444;
+  color: #fff;
+}
+
+.dark .leaflet-routing-geocoder-result-table tr:hover {
+  background-color: #555;
 }

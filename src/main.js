@@ -212,6 +212,14 @@ function loadHouses(locations) {
       .bindPopup(() => generatePopupForLocation(location));
     
     marker.location = location; // Store the location data with the marker
+
+    // Add event listeners to track the active popup
+    marker.on('popupopen', (e) => {
+      activePopup = e.popup;
+    });
+    marker.on('popupclose', () => {
+      activePopup = null;
+    });
   });
   
   if (arrayOfLatLngs.length > 0) {
@@ -501,12 +509,19 @@ function centerMapOnUser() {
 
 // Add these variables at the top of your file
 let currentRoute = null;
+let activePopup = null;
 
 // Add this new function to handle routing
 function getDirections(targetLat, targetLng) {
   if (!userLocation) {
     alert("Your location is not available. Please enable location services and try again.");
     return;
+  }
+
+  // Close the active popup if it exists
+  if (activePopup) {
+    map.closePopup(activePopup);
+    activePopup = null;
   }
 
   // Remove existing route if any
