@@ -56,12 +56,23 @@ function onLocationFound(e) {
   if (userMarker) {
     userMarker.setLatLng(e.latlng);
   } else {
-    userMarker = new L.marker(e.latlng)
+    // Create a custom icon for the user marker
+    const userIcon = L.divIcon({
+      className: 'user-location-icon',
+      html: '<div class="user-dot"></div>',
+      iconSize: [20, 20],
+      iconAnchor: [10, 10]
+    });
+
+    userMarker = new L.marker(e.latlng, {
+      icon: userIcon,
+      zIndexOffset: 1000 // This ensures the user marker is always on top
+    })
       .addTo(map)
       .bindPopup("You are within " + radius + " meters from this point");
   }
 
-  updateAllPopups(); // Add this line to update all popups
+  updateAllPopups();
 }
 
 function onLocationError(e) {
