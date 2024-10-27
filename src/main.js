@@ -73,6 +73,9 @@ function onLocationFound(e) {
   // Show the location button
   if (locationButton) {
     locationButton.classList.remove('hidden');
+    console.log('Location button should be visible now'); // Add this line for debugging
+  } else {
+    console.log('Location button not found'); // Add this line for debugging
   }
 
   // Center map on first location found
@@ -505,3 +508,4 @@ function centerMapOnUser() {
     map.setView(userLocation, map.getZoom());
   }
 }
+
