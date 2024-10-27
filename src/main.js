@@ -56,16 +56,7 @@ function onLocationFound(e) {
   if (userMarker) {
     userMarker.setLatLng(e.latlng);
   } else {
-    // Create a custom icon for the user marker
-    const userIcon = L.divIcon({
-      className: 'user-location-icon',
-      html: '<div class="user-dot"></div>',
-      iconSize: [20, 20],
-      iconAnchor: [10, 10]
-    });
-
     userMarker = new L.marker(e.latlng, {
-      icon: userIcon,
       zIndexOffset: 1000 // This ensures the user marker is always on top
     })
       .addTo(map)
@@ -485,3 +476,4 @@ document.addEventListener('DOMContentLoaded', function() {
     event.stopPropagation();
   });
 });
+
