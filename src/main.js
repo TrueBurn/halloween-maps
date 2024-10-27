@@ -73,6 +73,8 @@ function onLocationFound(e) {
       currentRoute.getWaypoints()[1]
     ]);
   }
+
+  updateRoutingControl();
 }
 
 function onLocationError(e) {
@@ -354,11 +356,12 @@ function toggleTheme() {
     map.removeLayer(lightTiles);
     darkTiles.addTo(map);
   } else {
-    map.removeLayer(lightTiles);
+    map.removeLayer(darkTiles);
     lightTiles.addTo(map);
   }
   
   updateThemeIcon();
+  updateRoutingControl();
 }
 
 // Add this line to attach the click event listener
@@ -527,9 +530,43 @@ function getDirections(targetLat, targetLng) {
       L.latLng(userLocation.lat, userLocation.lng),
       L.latLng(targetLat, targetLng)
     ],
-    routeWhileDragging: true,
+    routeWhileDragging: false,
     showAlternatives: false,
     addWaypoints: false,
-    fitSelectedRoutes: true
+    fitSelectedRoutes: true,
+    lineOptions: {
+      styles: [{ color: '#0000ff', opacity: 0.6, weight: 4 }]
+    },
+    createMarker: function() { return null; } // This will prevent creating new markers
   }).addTo(map);
+
+  currentRoute.on('routesfound', function() {
+    updateRoutingControl();
+  });
+
+  currentRoute.on('routingerror', function(e) {
+    console.error('Routing error:', e.error);
+    alert('Unable to calculate route. Please try again later.');
+  });
+
+  // Close the popup after getting directions
+  map.closePopup();
 }
+
+// Add this function after the existing getDirections function
+function updateRoutingControl() {
+  if (currentRoute) {
+    const routingContainer = document.querySelector('.leaflet-routing-container');
+    if (routingContainer) {
+      if (document.documentElement.classList.contains('dark')) {
+        routingContainer.classList.add('dark-mode');
+      } else {
+        routingContainer.classList.remove('dark-mode');
+      }
+    }
+  }
+}
+
+// Add this line at the end of the onLocationFound function
+updateRoutingControl();
+
