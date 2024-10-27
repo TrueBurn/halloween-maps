@@ -65,6 +65,14 @@ function onLocationFound(e) {
   }
 
   updateAllPopups();
+
+  // Update the route if it exists
+  if (currentRoute) {
+    currentRoute.setWaypoints([
+      L.latLng(e.latlng.lat, e.latlng.lng),
+      currentRoute.getWaypoints()[1]
+    ]);
+  }
 }
 
 function onLocationError(e) {
@@ -292,6 +300,9 @@ function generatePopupForLocation(location) {
     </div>`;
   }
   
+  // Add a "Get Directions" button at the end of the popup content
+  popupContent += `<button onclick="getDirections(${location.latitude}, ${location.longitude})" class="get-directions-btn">Get Directions</button>`;
+
   popupContent += '</div>'; // Close the main container div
   
   return popupContent;
@@ -493,4 +504,32 @@ function centerMapOnUser() {
   } else {
     console.log("User location not available");
   }
+}
+
+// Add these variables at the top of your file
+let currentRoute = null;
+
+// Add this new function to handle routing
+function getDirections(targetLat, targetLng) {
+  if (!userLocation) {
+    alert("Your location is not available. Please enable location services and try again.");
+    return;
+  }
+
+  // Remove existing route if any
+  if (currentRoute) {
+    map.removeControl(currentRoute);
+  }
+
+  // Create and add the new route
+  currentRoute = L.Routing.control({
+    waypoints: [
+      L.latLng(userLocation.lat, userLocation.lng),
+      L.latLng(targetLat, targetLng)
+    ],
+    routeWhileDragging: true,
+    showAlternatives: false,
+    addWaypoints: false,
+    fitSelectedRoutes: true
+  }).addTo(map);
 }
