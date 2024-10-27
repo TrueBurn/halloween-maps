@@ -231,8 +231,8 @@ function loadHouses(locations) {
 }
 
 function generatePopupForLocation(location) {
-  let popupContent = `<div style="min-width: 200px;">`;
-  popupContent += `<h3 style="font-weight: bold; margin-bottom: 8px;">${location.address}</h3>`;
+  let popupContent = `<div style="min-width: 200px; max-width: 250px;">`;
+  popupContent += `<h3 style="font-weight: bold; margin-bottom: 6px;">${location.address}</h3>`;
   
   if (location.route) {
     popupContent += `<div>Route: ${location.route}</div>`;
@@ -274,7 +274,7 @@ function generatePopupForLocation(location) {
       <span>Activity</span>
       <span><i class="fas fa-theater-masks" title="Has activity"></i></span>
     </div>`;
-    popupContent += `<div style="font-style: italic; margin-top: 4px;">${location.activity_details}</div>`;
+    popupContent += `<div style="font-style: italic; margin-top: 4px; font-size: 12px;">${location.activity_details}</div>`;
   }
   
   if (location.phone_number) {
@@ -284,7 +284,9 @@ function generatePopupForLocation(location) {
     </div>`;
   }
   
-  popupContent += `<button onclick="getDirections(${location.latitude}, ${location.longitude})" class="get-directions-btn">Get Directions</button>`;
+  popupContent += `<div style="text-align: center; margin-top: 8px;">
+    <button onclick="getDirections(${location.latitude}, ${location.longitude})" class="get-directions-btn">Get Directions</button>
+  </div>`;
 
   popupContent += '</div>';
   

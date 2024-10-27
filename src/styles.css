@@ -1257,19 +1257,22 @@ body{
   margin-right: 8px;
 }
 
+/* Update these styles for the get-directions button */
 .get-directions-btn {
   background-color: #4CAF50;
   border: none;
   color: white;
-  padding: 10px 20px;
+  padding: 6px 10px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
+  font-size: 14px;
+  margin: 4px 0;
   cursor: pointer;
   border-radius: 4px;
   transition: background-color 0.3s;
+  width: 100%;
+  max-width: 150px;
 }
 
 .get-directions-btn:hover {
@@ -1284,7 +1287,41 @@ body{
   background-color: #34495E;
 }
 
-/* Add these styles at the end of your existing CSS file */
+/* Add these styles for better mobile layout */
+.leaflet-popup-content {
+  margin: 10px;
+  font-size: 14px;
+}
+
+.leaflet-popup-content h3 {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.leaflet-popup-content > div {
+  margin-bottom: 4px;
+}
+
+/* Adjust icon sizes in popup */
+.leaflet-popup-content .fas {
+  font-size: 14px;
+}
+
+/* Media query for small screens */
+@media (max-width: 480px) {
+  .leaflet-popup-content {
+    font-size: 12px;
+  }
+
+  .leaflet-popup-content h3 {
+    font-size: 14px;
+  }
+
+  .get-directions-btn {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+}
 
 /* Leaflet Routing Machine dark mode styles */
 .dark .leaflet-routing-container {
@@ -1372,3 +1409,4 @@ body{
 .dark .leaflet-routing-geocoder-result-table tr:hover {
   background-color: #555;
 }
+
