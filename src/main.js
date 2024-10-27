@@ -24,21 +24,8 @@ const defaultZoom = 15; // Adjust this value as needed
 const map = L.map('map', {
   center: defaultLocation,
   zoom: defaultZoom,
-  zoomControl: false,  // This disables the zoom buttons
-  dragging: true,
-  tap: true,
-  touchZoom: true,
-  rotate: true, // Enable rotation
-  rotateControl: true // Add rotation control
+  zoomControl: false  // This disables the zoom buttons
 });
-
-// Add the rotate control to the map
-L.control.rotate({
-  closeOnZeroBearing: false // Keep the button visible even when bearing is 0
-}).addTo(map);
-
-// Enable touch two-finger rotation
-map.touchRotate.enable();
 
 // Add these lines after the map initialization:
 // map.touchZoom.disable();
