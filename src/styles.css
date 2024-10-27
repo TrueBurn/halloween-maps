@@ -1233,3 +1233,23 @@ body{
   list-style-type: none;
   padding-left: 0;
 }
+
+/* Add this to your existing styles */
+.inline-icon {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.modal-content li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.modal-content li i,
+.modal-content li img {
+  flex-shrink: 0;
+  margin-right: 8px;
+}
