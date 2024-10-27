@@ -531,7 +531,7 @@ function getDirections(targetLat, targetLng) {
     map.removeControl(currentRoute);
   }
 
-  // Create and add the new route
+  // Create and add the new route with walking profile
   currentRoute = L.Routing.control({
     waypoints: [
       L.latLng(userLocation.lat, userLocation.lng),
@@ -540,6 +540,10 @@ function getDirections(targetLat, targetLng) {
     routeWhileDragging: true,
     showAlternatives: false,
     addWaypoints: false,
-    fitSelectedRoutes: true
+    fitSelectedRoutes: true,
+    router: L.Routing.osrmv1({
+      serviceUrl: 'https://router.project-osrm.org/route/v1',
+      profile: 'foot' // Change to walking profile
+    })
   }).addTo(map);
 }
