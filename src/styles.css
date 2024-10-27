@@ -1221,3 +1221,15 @@ body{
 .dark #locationButton:hover {
   background-color: #2d3748;
 }
+
+/* Add this to your existing styles */
+.modal-content .fas {
+  width: 20px;
+  text-align: center;
+  margin-right: 8px;
+}
+
+.modal-content ul {
+  list-style-type: none;
+  padding-left: 0;
+}
